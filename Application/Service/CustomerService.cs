@@ -13,7 +13,7 @@ namespace Application.Service
 
         public bool Delete(int id)
         {
-            var customer = _customers.FirstOrDefault(x => x.CustomerId == id);
+            var customer = GetById(id);
            if (customer==null) return false;
            _customers.Remove(customer);
             return true;
@@ -31,7 +31,8 @@ namespace Application.Service
         }
         public bool Update(Customer entity)
         {
-            var exsisting = _customers.FirstOrDefault(x=> x.CustomerId==entity.CustomerId);
+            var exsisting = GetById(entity.CustomerId);
+
             if (exsisting == null) return false;
             else
             {

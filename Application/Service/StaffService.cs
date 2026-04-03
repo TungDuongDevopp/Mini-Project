@@ -15,7 +15,7 @@ public class StaffService : IBaseRepository<Staff>
 
     public bool Delete(int id)
     {
-        var staff = _staff.FirstOrDefault(x => x.StaffId == id);    
+        var staff = GetById(id);    
         if (staff != null)
         {
             _staff.Remove(staff);
@@ -37,7 +37,7 @@ public class StaffService : IBaseRepository<Staff>
 
     public bool Update(Staff entity)
     {
-        var existing = _staff.FirstOrDefault(x => x.StaffId == entity.StaffId);
+        var existing = GetById(entity.StaffId);
         if (existing != null)
         {
             existing.Name = entity.Name;

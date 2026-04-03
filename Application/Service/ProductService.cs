@@ -10,7 +10,7 @@ public class ProductService: IBaseRepository<Product>
     
     public bool Update(Product product)
     {
-        var existing = _products.FirstOrDefault(x => x.ProductId == product.ProductId);
+        var existing = GetById(product.ProductId);
         if (existing == null) return false;
         else {
             existing.Name = product.Name;
@@ -25,7 +25,7 @@ public class ProductService: IBaseRepository<Product>
 
     public bool Delete(int id)
     {
-        var product = _products.FirstOrDefault(x=>x.ProductId == id);
+        var product = GetById(id);
         if (product == null) return false;
         _products.Remove(product);
         return true;
