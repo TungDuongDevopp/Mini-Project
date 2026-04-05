@@ -7,12 +7,13 @@ public class OrderService : IOrder
 {
     private readonly IBaseRepository<Product> _productService;
     private readonly IBaseRepository<Customer> _customerService;
-    private List<Order> _orders= new();
+    private readonly IBaseRepository<Order> _orderService;
 
-    public OrderService(IBaseRepository<Product> productService, IBaseRepository<Customer> customerService)
+    public OrderService(IBaseRepository<Product> productService, IBaseRepository<Customer> customerService, IBaseRepository<Order> orderRepository)
     {
         _productService = productService;
         _customerService = customerService;
+        _orderService = orderRepository;
     }
     public void Create(int customerId, List<(int productId, int quantity)> items)
     {
@@ -22,27 +23,36 @@ public class OrderService : IOrder
         {
             throw new Exception($"Customer with ID {customerId} not found.");
         }
+
+        if (items == null || !items.Any())
+        {
+            throw new Exception("Order must contain at least one product.");
+        }
         // Tạo đơn hàng mới
+
+        var allOrders = _orderService.GetAll();
 
         var order = new Order
         {
-            OrderId = _orders.Count + 1,
+            OrderId = allOrders.Any() ? allOrders.Max(o => o.OrderId) + 1 : 1,
             CustomerId = customerId,
             TotalAmount = 0
         };
 
         decimal total = 0;
         //Duyệt tưng từng sản phẩm trong đơn hàng, kiểm tra sự tồn tại của sản phẩm và tính tổng tiền
-        foreach (var item in items)
-        {
-            // Kiểm tra sự tồn tại của sản phẩm
+       
+        foreach (var item in items) {
             var product = _productService.GetById(item.productId);
+
+           
+
             if (product == null)
             {
                 throw new Exception($"Product with ID {item.productId} not found.");
             }
             // Kiểm tra số lượng hợp lệ
-            if (item.quantity < 0)
+            if (item.quantity <= 0)
             {
                 throw new Exception($"Quantity for product ID {item.productId} cannot be negative. Requested: {item.quantity}");
             }
@@ -51,8 +61,16 @@ public class OrderService : IOrder
             {
                 throw new Exception($"Not enough stock for product ID {item.productId}. Available: {product.StockQuantity}, Requested: {item.quantity}");
             }
+        }
+
+        foreach (var item in items)
+        {
+            // Kiểm tra sự tồn tại của sản phẩm
+            var product = _productService.GetById(item.productId);
+           
             //Cập nhật số lượng kho
             product.StockQuantity -= item.quantity;
+            _productService.Update(product);
             // Tạo chi tiết đơn hàng và tính tổng tiền
             var orderDetail = new OrderDetail
 
@@ -70,30 +88,23 @@ public class OrderService : IOrder
         // Cập nhật tổng tiền cho đơn hàng
         order.TotalAmount = total;
         // Lưu đơn hàng vào danh sách
-        _orders.Add(order);
+        _orderService.Create(order);
     }
 
     public bool Delete(int id)
     {
-        var existingOrder = GetById(id);
-        if (existingOrder == null)
-        {
-            return false;
-        }
-        _orders.Remove(existingOrder);
+        return _orderService.Delete(id);
 
-        return true;
     }
 
     public IReadOnlyList<Order> GetAll()
     {
-        return _orders;
+        return _orderService.GetAll();
     }
 
     public Order? GetById(int id)
     {
-       var order = _orders.FirstOrDefault(o => o.OrderId == id);
-         return order;
+        return _orderService.GetById(id);
     }
 
 

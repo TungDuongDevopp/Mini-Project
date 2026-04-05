@@ -11,8 +11,6 @@ internal class OrderConsoleHander
 
         var items = new List<(int productId, int quantity)>();
 
-
-
         while (true)
         {
             Console.Write("Enter ProductId (0 to stop): ");
