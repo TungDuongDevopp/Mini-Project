@@ -28,7 +28,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
 
     public void Output(Product entity)
     {
-        Console.WriteLine($"{entity.ProductId} - {entity.Name} -{entity.Price} - {entity.Description} -{entity.StockQuantity}");
+        Console.WriteLine($"{entity.ProductId} - {entity.Name} - {entity.Price} - {entity.Description} - {entity.StockQuantity}");
     }
 
     public void OutputList(IEnumerable<Product> list)

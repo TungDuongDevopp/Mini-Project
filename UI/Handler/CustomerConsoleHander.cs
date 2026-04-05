@@ -26,7 +26,7 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
 
     public void Output(Customer entity)
     {
-        Console.WriteLine($"{entity.CustomerId} -{entity.Name} - {entity.Email} - {entity.PhoneNumber}");
+        Console.WriteLine($"{entity.CustomerId} - {entity.Name} - {entity.Email} - {entity.PhoneNumber}");
     }
 
     public void OutputList(IEnumerable<Customer> list)
