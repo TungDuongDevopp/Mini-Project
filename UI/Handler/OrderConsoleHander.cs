@@ -1,4 +1,7 @@
 ﻿using Domain.Entity;
+using Infrastructure.Data;
+using Infrastructure.Repository;
+using UI.Factory;
 
 namespace UI.Handler;
 internal class OrderConsoleHander 
@@ -41,6 +44,51 @@ internal class OrderConsoleHander
         foreach (var item in list)
         {
             Output(item);
+        }
+    }
+
+    public void Run()
+    {
+        
+
+     var ordersevice = AppFactory.CreateOrderService();
+         var datastore = new JsonFileDataStore<Order>(@"C:\Users\xayda\source\repos\Sale_Management\Infrastructure\File\Order.json");
+        var orderRepo = new OrderRepository(datastore);
+
+        while (true)
+        {
+            Console.WriteLine(@"
+--- Order ---
+1. Create
+2. View All
+3. Delete
+0. Back");
+
+            if (!int.TryParse(Console.ReadLine(), out int choice))
+            {
+                Console.WriteLine("Nhập sai!");
+                continue;
+            }
+
+            switch (choice)
+            {
+                case 1:
+                    var (customerId, items) = Input();
+                    ordersevice.Create(customerId, items);
+                    break;
+
+                case 2:
+                    OutputList(orderRepo.GetAll());
+                    break;
+                case 3:
+                    Console.Write("Nhập ID cần xóa: ");
+                    int deleteId = int.Parse(Console.ReadLine());
+                    orderRepo.Delete(deleteId);
+                    break;
+
+                case 0:
+                    return;
+            }
         }
     }
 }

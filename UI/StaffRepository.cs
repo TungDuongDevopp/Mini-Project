@@ -1,0 +1,56 @@
+﻿using Application.Interface;
+using Domain.Entity;
+
+namespace Infrastructure.Repository;
+
+public class StaffRepository: IBaseRepository<Staff>
+{
+    private List<Staff> _staff = new();
+    private readonly IDataStore<Staff> _dataStore;
+    public StaffRepository (IDataStore<Staff> dataStore)
+    {
+        _dataStore = dataStore;
+        _staff = _dataStore.Load();
+    }
+    public void Create(Staff entity)
+    {
+        _staff.Add(entity);
+        _dataStore.Save(_staff);
+    }
+
+    public bool Delete(int id)
+    {
+        var staff = GetById(id);
+        if (staff != null)
+        {
+            _staff.Remove(staff);
+            _dataStore.Save(_staff);
+            return true;
+        }
+        return false;
+    }
+
+    public IReadOnlyList<Staff> GetAll()
+    => _staff.ToList();
+    
+
+    public Staff? GetById(int id)
+    => _staff.FirstOrDefault(x => x.StaffId == id);
+        
+    
+
+    public bool Update(Staff entity)
+    {
+        var existing = GetById(entity.StaffId);
+        if (existing != null)
+        {
+            existing.Name = entity.Name;
+            existing.Position = entity.Position;
+            existing.Salary = entity.Salary;
+            _dataStore.Save(_staff);
+            return true;
+
+        }
+        return false;
+    }
+}

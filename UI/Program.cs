@@ -8,22 +8,44 @@ namespace UI
     {
         static void Main(string[] args)
         {
-            var orderconsole  =  new OrderConsoleHander() ;
-            
-            var productService = new ProductService();
-            var customerService = new CustomerService();
-            productService.Create(new Product() { ProductId =1,Name="Coca",Description="Nước ngọt",Price=15m,StockQuantity=120});
-            customerService.Create(new Customer() { CustomerId = 1, Name = "John Doe", Email = "abc", PhoneNumber = "123456789" });
-            var orderService = new OrderService(productService,customerService);
-            var(customerid,items) = orderconsole.Input();
+            while (true)
+            {
+                Console.WriteLine(@"
+1. Customer
+2. Staff
+3. Product
+4. Order
+0. Exit");
 
-            orderService.Create(customerid, items);
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                {
+                    Console.WriteLine("Nhập sai!");
+                    continue;
+                }
 
-            orderconsole.OutputList(orderService.GetAll());
-
-
-
-
+                switch (choice)
+                {
+                    case 1:
+                        new CustomerConsoleHander().Run(); 
+                        
+                        break;
+                    case 2:
+                        new StaffConsoleHander().Run();
+                        
+                        break;
+                    case 3:
+                        new ProductConsoleHander().Run();
+                        break;
+                    case 4:
+                        new OrderConsoleHander().Run();
+                        break;
+                    case 0:
+                        return;
+                    default:
+                        Console.WriteLine("Không hợp lệ");
+                        break;
+                }
+            }
 
 
 

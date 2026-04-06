@@ -5,5 +5,6 @@
         T Input();
         void Output(T entity);
         void OutputList(IEnumerable<T> list);
+        void Run();
     }
 
