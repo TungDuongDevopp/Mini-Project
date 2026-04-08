@@ -30,12 +30,14 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     }
 
     public void Output(Product entity)
-    {
+        
+    {  
         Console.WriteLine($"{entity.ProductId} - {entity.Name} - {entity.Price} - {entity.Description} - {entity.StockQuantity}");
     }
 
     public void OutputList(IEnumerable<Product> list)
     {
+        Console.WriteLine("Danh sách sản phẩm là: ");
         foreach (Product product in list) { 
         Output(product);
         }
@@ -43,7 +45,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     public void Run()
     {
 
-        var filepath = Path.Combine(BasePath, "Data", "Product.json");
+        var filepath = Path.Combine(BasePath, "File", "Product.json");
         var dataStore = new JsonFileDataStore<Product>(filepath);
         var productrrepo = new ProductRepository(dataStore);
 
@@ -78,7 +80,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
                     int updateId = int.Parse(Console.ReadLine());
 
                     var updated = Input();
-                    updated.ProductId = updateId;
+                    
                         productrrepo.Update(updated);
                     break;
 

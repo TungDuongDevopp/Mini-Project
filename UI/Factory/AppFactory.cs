@@ -17,21 +17,21 @@ internal class AppFactory
 
     public static OrderRepository CreateOrderRepository()
     {
-        var path = Path.Combine(BasePath, "Data", "Order.json");
+        var path = Path.Combine(BasePath, "File", "Order.json");
         var store = new JsonFileDataStore<Order>(path);
         return new OrderRepository(store);
     }
 
     private static ProductRepository CreateProductRepository()
     {
-        var path = Path.Combine(BasePath, "Data", "Product.json");
+        var path = Path.Combine(BasePath, "File", "Product.json");
         var store = new JsonFileDataStore<Product>(path);
         return new ProductRepository(store);
     }
 
     private static CustomerRepository CreateCustomerRepository()
     {
-        var path = Path.Combine(BasePath, "Data", "Customer.json");
+        var path = Path.Combine(BasePath, "File", "Customer.json");
         var store = new JsonFileDataStore<Customer>(path);
         return new CustomerRepository(store);
     }

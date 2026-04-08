@@ -35,8 +35,10 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
 
     public void OutputList(IEnumerable<Customer> list)
     {
-       foreach (var customer in list)
-       {
+        Console.WriteLine("Danh sách khách hàng là: ");
+        foreach (var customer in list)
+        {
+           
            Output(customer);
         }
     }
@@ -44,7 +46,7 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
     public void Run()
        
     {
-        var filepath = Path.Combine(BasePath, "Data", "Customer.json"); ;
+        var filepath = Path.Combine(BasePath, "File", "Customer.json"); ;
         var dataStore = new JsonFileDataStore<Customer>(filepath);
         var customerrepo = new CustomerRepository(dataStore);
 
@@ -79,7 +81,6 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
                     int updateId = int.Parse(Console.ReadLine());
 
                     var updated = Input();
-                    updated.CustomerId = updateId;
 
                     customerrepo.Update(updated);
                     break;

@@ -1,12 +1,13 @@
 ﻿using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
-using UI.Factory;
+
 
 namespace UI.Handler;
 internal class OrderConsoleHander 
 
 {
+    private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
     public (int customerId, List<(int productId, int quantity)> items) Input()
     {
         Console.Write("Enter CustomerId: ");
@@ -41,6 +42,7 @@ internal class OrderConsoleHander
 
     public void OutputList(IEnumerable<Order> list)
     {
+        Console.WriteLine("Danh sách đơn đặt hàng là:");
         foreach (var item in list)
         {
             Output(item);
@@ -52,8 +54,9 @@ internal class OrderConsoleHander
         
 
      var ordersevice = AppFactory.CreateOrderService();
-         var datastore = new JsonFileDataStore<Order>(@"C:\Users\xayda\source\repos\Sale_Management\Infrastructure\File\Order.json");
-        var orderRepo = new OrderRepository(datastore);
+        var filePath = Path.Combine(BasePath, "File", "Order.json");
+        var datastore = new JsonFileDataStore<Order>(filePath);
+        var orderRepo =AppFactory.CreateOrderRepository();
 
         while (true)
         {

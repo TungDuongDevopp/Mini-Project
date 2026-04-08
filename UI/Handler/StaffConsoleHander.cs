@@ -33,7 +33,9 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
     }
 
     public void OutputList(IEnumerable<Staff> list)
+       
     {
+        Console.WriteLine("Danh sách nhân viên là:");
         foreach (var staff in list)
         {
             Output(staff);
@@ -42,7 +44,7 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
     public void Run()
     {
-        var filepath = Path.Combine(BasePath, "Data", "Staff.json");
+        var filepath = Path.Combine(BasePath, "File", "Staff.json");
         var dataStore = new JsonFileDataStore<Staff>(filepath);
         var staffrepo = new StaffRepository(dataStore);
 
@@ -77,7 +79,6 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
                     int updateId = int.Parse(Console.ReadLine());
 
                     var updated = Input();
-                    updated.StaffId= updateId;
 
                     staffrepo.Update(updated);
 
