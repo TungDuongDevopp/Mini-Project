@@ -32,12 +32,14 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     public void Output(Product entity)
         
     {  
-        Console.WriteLine($"{entity.ProductId} - {entity.Name} - {entity.Price} - {entity.Description} - {entity.StockQuantity}");
+        Console.WriteLine($"{entity.ProductId,-3} | {entity.Name,-25} | {entity.Price.ToString("N0"),-10} | {entity.Description,-30} | {entity.StockQuantity,-5}");
     }
 
     public void OutputList(IEnumerable<Product> list)
     {
         Console.WriteLine("Danh sách sản phẩm là: ");
+        Console.WriteLine("-----------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine($"{"ID",-3} | {"Name",-25} | {"Price",-10} | {"Description",-30} | {"StockQuantity",-5}");
         foreach (Product product in list) { 
         Output(product);
         }

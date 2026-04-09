@@ -1,6 +1,10 @@
-﻿using Domain.Entity;
+﻿using Application.Interface;
+using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
+using System;
+using System.Diagnostics;
+using System.Runtime.Intrinsics.X86;
 
 
 namespace UI.Handler;
@@ -8,6 +12,7 @@ internal class OrderConsoleHander
 
 {
     private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
+    
     public (int customerId, List<(int productId, int quantity)> items) Input()
     {
         Console.Write("Enter CustomerId: ");
@@ -32,22 +37,37 @@ internal class OrderConsoleHander
         return (customerId, items);
     }
     public void Output(Order entity)
-    {
-        Console.WriteLine($"{entity.OrderId} - {entity.CustomerId} - {entity.TotalAmount}");
-        foreach (var detail in entity.Details)
+        
+    {   var productRepo = AppFactory.CreateProductRepository();
+        var products = productRepo.GetAll().ToDictionary(p => p.ProductId);
+
+        Console.WriteLine($"\nORDER: {entity.OrderId} - Customer: {entity.CustomerId}");
+        Console.WriteLine("-----------------------------------------------------------------------------------------------------------------------");
+        // In tiêu đề cột ngay tại đây
+        Console.WriteLine($"{"ID",-5} | {"ProductName",-30} | {"Quantity",-8} | {"Price",-10}");
+        Console.WriteLine("-----------------------------------------------------------------------------------------------------------------------");
+
+        foreach (var item in entity.Details)
         {
-            Console.WriteLine($"{detail.OrderDetailId} - {detail.ProductId} - {detail.Quantity} - {detail.Price}");
+            var productName = products.ContainsKey(item.ProductId)
+                ? products[item.ProductId].Name
+                : "Unknown";
+
+            Console.WriteLine($"{item.ProductId,-5} | {productName,-30} | {item.Quantity,-8} | {item.Price.ToString("N0"),10}");
         }
+        Console.WriteLine("-----------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine($"TOTAL: {entity.TotalAmount:N0} VNĐ"); // Thêm :N0 để định dạng số tiền cho đẹp
     }
 
     public void OutputList(IEnumerable<Order> list)
     {
-        Console.WriteLine("Danh sách đơn đặt hàng là:");
+        Console.WriteLine("DANH SÁCH CÁC ĐƠN HÀNG");
         foreach (var item in list)
         {
             Output(item);
         }
     }
+
 
     public void Run()
     {

@@ -29,13 +29,15 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
     }
 
     public void Output(Customer entity)
-    {
-        Console.WriteLine($"{entity.CustomerId} - {entity.Name} - {entity.Email} - {entity.PhoneNumber}");
+    { 
+        Console.WriteLine($"{entity.CustomerId,-3} | {entity.Name,-25} | {entity.Email,-25} | {entity.PhoneNumber,-15}");
     }
 
     public void OutputList(IEnumerable<Customer> list)
     {
         Console.WriteLine("Danh sách khách hàng là: ");
+        Console.WriteLine("----------------------------------------------------------------------------------------------------------");
+        Console.WriteLine($"{"ID",-3} | {"Name",-25} | {"Email",-25} | {"PhoneNumber",-15}");
         foreach (var customer in list)
         {
            

@@ -28,7 +28,7 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
     public void Output(Staff entity)
     {
-        Console.WriteLine($"{entity.StaffId} - {entity.Name} - {entity.Position} - {entity.Salary}");
+        Console.WriteLine($"{entity.StaffId,-3} | {entity.Name,-25} | {entity.Position,-15} | {entity.Salary.ToString("N0"),-10}");
 
     }
 
@@ -36,6 +36,8 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
        
     {
         Console.WriteLine("Danh sách nhân viên là:");
+        Console.WriteLine("-----------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine($"{"Id",-3} | {"Name",-25} | {"Position",-15} | {"Salary",-10}");
         foreach (var staff in list)
         {
             Output(staff);

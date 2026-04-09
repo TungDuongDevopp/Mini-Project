@@ -22,14 +22,14 @@ internal class AppFactory
         return new OrderRepository(store);
     }
 
-    private static ProductRepository CreateProductRepository()
+    public static ProductRepository CreateProductRepository()
     {
         var path = Path.Combine(BasePath, "File", "Product.json");
         var store = new JsonFileDataStore<Product>(path);
         return new ProductRepository(store);
     }
 
-    private static CustomerRepository CreateCustomerRepository()
+    public static CustomerRepository CreateCustomerRepository()
     {
         var path = Path.Combine(BasePath, "File", "Customer.json");
         var store = new JsonFileDataStore<Customer>(path);
