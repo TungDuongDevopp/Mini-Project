@@ -9,14 +9,11 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
     private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
     public Staff Input()
     {
-        Console.WriteLine("Enter Staff Id:");
-        int id = int.Parse(Console.ReadLine()!);
-        Console.WriteLine("Enter Staff Name:");
-        string name = Console.ReadLine()!;
-        Console.WriteLine("Enter Position:");
-        string position = Console.ReadLine()!;
-        Console.WriteLine("Enter Salary");
-       decimal salary = decimal.Parse(Console.ReadLine()!);
+       
+        int id = InputHelper.Input("Enter Staff ID:", InputHelper.Parsers.Int, x => x > 0);
+        string name = InputHelper.Input("Enter Staff Name:", InputHelper.Parsers.String);
+        string position = InputHelper.Input("Enter Position:", InputHelper.Parsers.String);
+        decimal salary = InputHelper.Input("Enter Salary:", InputHelper.Parsers.Decimal, x => x > 0);
         return new Staff
         {
             StaffId = id,

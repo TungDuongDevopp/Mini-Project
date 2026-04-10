@@ -1,8 +1,8 @@
-﻿
-using Application.Interface;
+﻿using Application.Interface;
 using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
+using static InputHelper;
 
 namespace UI.Handler;
 
@@ -11,14 +11,10 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
     private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
     public Customer Input()
     {
-        Console.WriteLine("Enter Customer Id:");
-        int id = int.Parse(Console.ReadLine()!);
-        Console.WriteLine("Enter Customer Name:");
-        string name = Console.ReadLine()!;
-        Console.WriteLine("Enter Customer Phone Number:");
-        string phoneNumber = Console.ReadLine()!;
-        Console.WriteLine("Enter Customer Email:");
-        string email = Console.ReadLine()!;
+        int id = InputHelper.Input("Enter Customer Id:", Parsers.Int, x => x > 0);
+        string name = InputHelper.Input("Enter Customer Name:", Parsers.String);
+        string phoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String);
+        string email = InputHelper.Input("Enter Customer Email:", Parsers.String);
         return new Customer
         {
             CustomerId = id,

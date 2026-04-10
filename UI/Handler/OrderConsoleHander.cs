@@ -15,21 +15,19 @@ internal class OrderConsoleHander
     
     public (int customerId, List<(int productId, int quantity)> items) Input()
     {
-        Console.Write("Enter CustomerId: ");
-        int customerId = int.Parse(Console.ReadLine()!);
+        
+        int customerId = InputHelper.Input("Enter Customer ID:", InputHelper.Parsers.Int, x => x > 0);
 
         var items = new List<(int productId, int quantity)>();
 
         while (true)
         {
-            Console.Write("Enter ProductId (0 to stop): ");
-            int productId = int.Parse(Console.ReadLine()!);
+         
+            int productId = InputHelper.Input("Enter Product ID (0 to stop):", InputHelper.Parsers.Int, x => x >= 0);
 
             if (productId == 0)
                 break;
-
-            Console.Write("Enter Quantity: ");
-            int quantity = int.Parse(Console.ReadLine()!);
+            int quantity = InputHelper.Input("Enter Quantity:", InputHelper.Parsers.Int, x => x > 0);
 
             items.Add((productId, quantity));
         }

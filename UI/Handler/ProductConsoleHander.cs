@@ -9,16 +9,12 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
     public Product Input()
     {
-        Console.WriteLine("Enter Product Id:");
-        int id = int.Parse(Console.ReadLine()!);
-        Console.WriteLine("Enter Product Name:");
-        string name = Console.ReadLine()!;
-        Console.WriteLine("Enter Product Description");
-        string description = Console.ReadLine()!;
-        Console.WriteLine("Enter Product Price:");
-        decimal price = decimal.Parse(Console.ReadLine()!);
-        Console.WriteLine("Enter Product Stockquantity:");
-        int stock = int.Parse(Console.ReadLine()!);
+       
+        int id = InputHelper.Input("Enter Product ID:", InputHelper.Parsers.Int, x => x > 0);
+        string name = InputHelper.Input("Enter Product Name:", InputHelper.Parsers.String);
+        string description = InputHelper.Input("Enter Product Description:", InputHelper.Parsers.String);
+        decimal price = InputHelper.Input("Enter Product Price:", InputHelper.Parsers.Decimal, x => x > 0);
+        int stock = InputHelper.Input("Enter Product Stock Quantity:", InputHelper.Parsers.Int, x => x >= 0);
         return new Product
         {
             ProductId = id,
