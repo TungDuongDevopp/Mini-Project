@@ -13,7 +13,8 @@ public class StaffRepository: IBaseRepository<Staff>
         _staff = _dataStore.Load();
     }
     public void Create(Staff entity)
-    {
+
+    {   entity.StaffId = _staff.Any() ? _staff.Max(x => x.StaffId) + 1 : 1;
         _staff.Add(entity);
         _dataStore.Save(_staff);
     }
