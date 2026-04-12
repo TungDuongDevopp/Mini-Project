@@ -1,6 +1,7 @@
 ﻿using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
+using UI.Helper;
 
 namespace UI.Handler;
 
@@ -13,7 +14,7 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
         int id = InputHelper.Input("Enter Staff ID:", InputHelper.Parsers.Int, x => x > 0);
         string name = InputHelper.Input("Enter Staff Name:", InputHelper.Parsers.String);
         string position = InputHelper.Input("Enter Position:", InputHelper.Parsers.String);
-        decimal salary = InputHelper.Input("Enter Salary:", InputHelper.Parsers.Decimal, x => x > 0);
+        decimal salary = InputHelper.Input("Enter Salary:", InputHelper.Parsers.Decimal,Validator.IsValidMoney);
         return new Staff
         {
             StaffId = id,

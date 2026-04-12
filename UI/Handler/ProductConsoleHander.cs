@@ -1,6 +1,7 @@
 ﻿using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
+using UI.Helper;
 
 namespace UI.Handler;
 
@@ -13,7 +14,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
         int id = InputHelper.Input("Enter Product ID:", InputHelper.Parsers.Int, x => x > 0);
         string name = InputHelper.Input("Enter Product Name:", InputHelper.Parsers.String);
         string description = InputHelper.Input("Enter Product Description:", InputHelper.Parsers.String);
-        decimal price = InputHelper.Input("Enter Product Price:", InputHelper.Parsers.Decimal, x => x > 0);
+        decimal price = InputHelper.Input("Enter Product Price:", InputHelper.Parsers.Decimal, Validator.IsValidMoney);
         int stock = InputHelper.Input("Enter Product Stock Quantity:", InputHelper.Parsers.Int, x => x >= 0);
         return new Product
         {

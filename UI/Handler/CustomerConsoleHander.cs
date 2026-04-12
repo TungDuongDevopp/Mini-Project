@@ -2,6 +2,7 @@
 using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
+using UI.Helper;
 using static InputHelper;
 
 namespace UI.Handler;
@@ -13,8 +14,8 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
     {
         int id = InputHelper.Input("Enter Customer Id:", Parsers.Int, x => x > 0);
         string name = InputHelper.Input("Enter Customer Name:", Parsers.String);
-        string phoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String);
-        string email = InputHelper.Input("Enter Customer Email:", Parsers.String);
+        string phoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String, Validator.IsValidPhone);
+        string email = InputHelper.Input("Enter Customer Email:", Parsers.String, Validator.IsValidEmail);
         return new Customer
         {
             CustomerId = id,
