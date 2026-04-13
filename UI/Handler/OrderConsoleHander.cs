@@ -11,8 +11,12 @@ namespace UI.Handler;
 internal class OrderConsoleHander 
 
 {
-    private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
-    
+    private readonly OrderService _orderService;
+    public OrderConsoleHander(OrderService orderService)
+    {
+        _orderService = orderService;
+    }
+
     public (int customerId, List<(int productId, int quantity)> items) Input()
     {
         
@@ -36,7 +40,7 @@ internal class OrderConsoleHander
     }
     public void Output(Order entity)
         
-    {   var productRepo = AppFactory.CreateProductRepository();
+    {   var productRepo = AppFactory.ProductRepository;
         var products = productRepo.GetAll().ToDictionary(p => p.ProductId);
 
         Console.WriteLine($"\nORDER: {entity.OrderId} - Customer: {entity.CustomerId}");
@@ -69,12 +73,7 @@ internal class OrderConsoleHander
 
     public void Run()
     {
-        
 
-     var ordersevice = AppFactory.CreateOrderService();
-        var filePath = Path.Combine(BasePath, "File", "Order.json");
-        var datastore = new JsonFileDataStore<Order>(filePath);
-        var orderRepo =AppFactory.CreateOrderRepository();
 
         while (true)
         {
@@ -95,16 +94,16 @@ internal class OrderConsoleHander
             {
                 case 1:
                     var (customerId, items) = Input();
-                    ordersevice.Create(customerId, items);
+                    _orderService.Create(customerId, items);
                     break;
 
                 case 2:
-                    OutputList(orderRepo.GetAll());
+                    OutputList(_orderService.GetAll());
                     break;
                 case 3:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
-                    orderRepo.Delete(deleteId);
+                    _orderService.Delete(deleteId);
                     break;
 
                 case 0:

@@ -1,7 +1,4 @@
-﻿using Application.Interface;
-using Domain.Entity;
-using Infrastructure.Data;
-using Infrastructure.Repository;
+﻿using Domain.Entity;
 using UI.Helper;
 using static InputHelper;
 
@@ -9,13 +6,19 @@ namespace UI.Handler;
 
 internal class CustomerConsoleHander: IConsoleHandler<Customer>
 {
-    private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
+    private readonly CustomerService _customerService;
+
+    public CustomerConsoleHander (CustomerService customerService)
+    {
+        _customerService = customerService;
+    }
+
     public Customer Input()
     {
         int id = InputHelper.Input("Enter Customer Id:", Parsers.Int, x => x > 0);
         string name = InputHelper.Input("Enter Customer Name:", Parsers.String);
-        string phoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String, Validator.IsValidPhone);
-        string email = InputHelper.Input("Enter Customer Email:", Parsers.String, Validator.IsValidEmail);
+        string phoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String,v=> Validator.IsValidPhone(v)&& _customerService.IsPhoneUnique(v));
+        string email = InputHelper.Input("Enter Customer Email:", Parsers.String, v => Validator.IsValidEmail(v) && _customerService.IsEmailUnique(v));
         return new Customer
         {
             CustomerId = id,
@@ -45,9 +48,6 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
     public void Run()
        
     {
-        var filepath = Path.Combine(BasePath, "File", "Customer.json"); ;
-        var dataStore = new JsonFileDataStore<Customer>(filepath);
-        var customerrepo = new CustomerRepository(dataStore);
 
         while (true)
         {
@@ -68,11 +68,11 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
             switch (choice)
             {
                 case 1:
-                    customerrepo.Create(Input());
+                    _customerService.Create(Input());
                     break;
 
                 case 2:
-                    OutputList(customerrepo.GetAll());
+                    OutputList(_customerService.GetAll());
                     break;
 
                 case 3:
@@ -81,13 +81,13 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
 
                     var updated = Input();
 
-                    customerrepo.Update(updated);
+                    _customerService.Update(updated);
                     break;
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
-                    customerrepo.Delete(deleteId);
+                    _customerService.Delete(deleteId);
                     break;
 
                 case 0:

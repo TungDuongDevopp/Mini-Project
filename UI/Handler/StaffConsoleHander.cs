@@ -1,4 +1,5 @@
-﻿using Domain.Entity;
+﻿using Application.Service;
+using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
 using UI.Helper;
@@ -7,7 +8,12 @@ namespace UI.Handler;
 
 internal class StaffConsoleHander : IConsoleHandler<Staff>
 {
-    private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
+    private readonly StaffService _staffService;
+    public StaffConsoleHander(StaffService staffService)
+    {
+        _staffService = staffService;
+    }
+
     public Staff Input()
     {
        
@@ -44,9 +50,6 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
     public void Run()
     {
-        var filepath = Path.Combine(BasePath, "File", "Staff.json");
-        var dataStore = new JsonFileDataStore<Staff>(filepath);
-        var staffrepo = new StaffRepository(dataStore);
 
         while (true)
         {
@@ -67,11 +70,11 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
             switch (choice)
             {
                 case 1:
-                    staffrepo.Create(Input());
+                    _staffService.Create(Input());
                     break;
 
                 case 2:
-                    OutputList(staffrepo.GetAll());
+                    OutputList(_staffService.GetAll());
                     break;
 
                 case 3:
@@ -80,14 +83,14 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
                     var updated = Input();
 
-                    staffrepo.Update(updated);
+                    _staffService.Update(updated);
 
                     break;
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
-                    staffrepo.Delete(deleteId);
+                    _staffService.Delete(deleteId);
                     break;
 
                 case 0:

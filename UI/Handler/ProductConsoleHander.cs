@@ -1,4 +1,5 @@
-﻿using Domain.Entity;
+﻿using Application.Service;
+using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
 using UI.Helper;
@@ -6,8 +7,13 @@ using UI.Helper;
 namespace UI.Handler;
 
 internal class ProductConsoleHander: IConsoleHandler<Product>
-{
-    private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
+{   
+    private readonly ProductService _productService;
+    public ProductConsoleHander(ProductService productService)
+    {
+        _productService = productService;
+    }
+
     public Product Input()
     {
        
@@ -44,10 +50,6 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     public void Run()
     {
 
-        var filepath = Path.Combine(BasePath, "File", "Product.json");
-        var dataStore = new JsonFileDataStore<Product>(filepath);
-        var productrrepo = new ProductRepository(dataStore);
-
         while (true)
         {
             Console.WriteLine(@"
@@ -67,11 +69,11 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
             switch (choice)
             {
                 case 1:
-                    productrrepo.Create(Input());
+                    _productService.Create(Input());
                     break;
 
                 case 2:
-                    OutputList(productrrepo.GetAll());
+                    OutputList(_productService.GetAll());
                     break;
 
                 case 3:
@@ -80,13 +82,13 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
 
                     var updated = Input();
                     
-                        productrrepo.Update(updated);
+                        _productService.Update(updated);
                     break;
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
-                    productrrepo.Delete(deleteId);
+                    _productService.Delete(deleteId);
                     break;
 
                 case 0:

@@ -1,7 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 
-public class OrderService
+public class OrderService: IOrder
 {
     private readonly IBaseRepository<Order> _orderRepo;
     private readonly IProductRepository _productRepo;
@@ -72,4 +72,13 @@ public class OrderService
 
         _orderRepo.Create(order);
     }
+
+    public bool Delete(int id)
+    => _orderRepo.Delete(id);
+
+    public IReadOnlyList<Order> GetAll()
+   => _orderRepo.GetAll().ToList();
+
+    public Order? GetById(int id)
+    => _orderRepo.GetById(id);
 }
