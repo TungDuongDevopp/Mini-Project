@@ -1,4 +1,4 @@
-﻿using Application.Service;
+﻿ using Application.Service;
 using Domain.Entity;
 using UI.Handler;
 
@@ -26,18 +26,18 @@ namespace UI
                 switch (choice)
                 {
                     case 1:
-                        new CustomerConsoleHander().Run(); 
+                        new CustomerConsoleHander(AppFactory.CustomerService).Run(); 
                         
                         break;
                     case 2:
-                        new StaffConsoleHander().Run();
+                        new StaffConsoleHander(AppFactory.StaffService).Run();
                         
                         break;
                     case 3:
-                        new ProductConsoleHander().Run();
+                        new ProductConsoleHander(AppFactory.ProductService).Run();
                         break;
                     case 4:
-                        new OrderConsoleHander().Run();
+                        new OrderConsoleHander(AppFactory.OrderService).Run();
                         break;
                     case 0:
                         return;
