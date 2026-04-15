@@ -17,13 +17,13 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
     public Staff Input()
     {
        
-        int id = InputHelper.Input("Enter Staff ID:", InputHelper.Parsers.Int, x => x > 0);
+      
         string name = InputHelper.Input("Enter Staff Name:", InputHelper.Parsers.String);
         string position = InputHelper.Input("Enter Position:", InputHelper.Parsers.String);
         decimal salary = InputHelper.Input("Enter Salary:", InputHelper.Parsers.Decimal,Validator.IsValidMoney);
         return new Staff
         {
-            StaffId = id,
+            
             Name = name,
             Position = position,
             Salary = salary

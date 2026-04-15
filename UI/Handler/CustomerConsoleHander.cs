@@ -15,13 +15,12 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
 
     public Customer Input()
     {
-        int id = InputHelper.Input("Enter Customer Id:", Parsers.Int, x => x > 0);
         string name = InputHelper.Input("Enter Customer Name:", Parsers.String);
         string phoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String,v=> Validator.IsValidPhone(v)&& _customerService.IsPhoneUnique(v));
         string email = InputHelper.Input("Enter Customer Email:", Parsers.String, v => Validator.IsValidEmail(v) && _customerService.IsEmailUnique(v));
         return new Customer
         {
-            CustomerId = id,
+         
             Name = name,
             PhoneNumber = phoneNumber,
             Email = email
