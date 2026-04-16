@@ -1,7 +1,7 @@
-﻿using Application.Interface;
+﻿
 using Domain.Entity;
 
-namespace Application.Service;
+namespace Application.Interface;
 
 public class ProductService : IBaseRepository<Product>
 {   private readonly IBaseRepository<Product> _repo;
