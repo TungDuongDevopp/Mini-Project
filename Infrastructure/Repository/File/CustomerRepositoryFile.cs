@@ -2,7 +2,7 @@
 using Domain.Entity;
 
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repository.File;
 public class CustomerRepositoryFile : IBaseRepository<Customer>
 {
     private List<Customer> _customers = new();

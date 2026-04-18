@@ -2,7 +2,7 @@
 using Domain.Entity;
 
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repository.File;
 
 public class ProductRepositoryFile: IProductRepository
 {

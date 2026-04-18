@@ -1,7 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 
-namespace Infrastructure.Repository;
+namespace Infrastructure.Repository.File;
 
 public class StaffRepositoryFile: IBaseRepository<Staff>
 {
