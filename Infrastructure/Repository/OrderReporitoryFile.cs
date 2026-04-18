@@ -2,12 +2,12 @@
 using Domain.Entity;
 using System.Xml.Linq;
 
-public class OrderRepository : IBaseRepository<Order>
+public class OrderRepositoryFile : IBaseRepository<Order>
 {
     private List<Order> _orders = new();
     private readonly IDataStore<Order> _dataStore;
 
-    public OrderRepository(IDataStore<Order> dataStore)
+    public OrderRepositoryFile(IDataStore<Order> dataStore)
     {
         _dataStore = dataStore;
         _orders = _dataStore.Load();

@@ -3,11 +3,11 @@ using Domain.Entity;
 
 namespace Infrastructure.Repository;
 
-public class StaffRepository: IBaseRepository<Staff>
+public class StaffRepositoryFile: IBaseRepository<Staff>
 {
     private List<Staff> _staff = new();
     private readonly IDataStore<Staff> _dataStore;
-    public StaffRepository (IDataStore<Staff> dataStore)
+    public StaffRepositoryFile (IDataStore<Staff> dataStore)
     {
         _dataStore = dataStore;
         _staff = _dataStore.Load();

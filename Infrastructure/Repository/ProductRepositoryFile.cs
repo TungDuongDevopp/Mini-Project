@@ -4,11 +4,11 @@ using Domain.Entity;
 
 namespace Infrastructure.Repository;
 
-public class ProductRepository: IProductRepository
+public class ProductRepositoryFile: IProductRepository
 {
     private List<Product> _products = new();
     private readonly IDataStore<Product> _dataStore;
-    public ProductRepository (IDataStore<Product> dataStore)
+    public ProductRepositoryFile(IDataStore<Product> dataStore)
     {
         _dataStore = dataStore;
         _products = _dataStore.Load();

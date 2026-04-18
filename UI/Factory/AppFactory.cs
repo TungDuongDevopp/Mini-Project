@@ -36,22 +36,21 @@ internal static class AppFactory
     // REPOSITORY (Singleton)
     // =========================
 
-    private static CustomerRepository? _customerRepo;
-    private static ProductRepository? _productRepo;
-    private static OrderRepository? _orderRepo;
-    private static StaffRepository? _staffRepo;
+    private static CustomerRepositoryFile? _customerRepo;
+    private static ProductRepositoryFile? _productRepo;
+    private static OrderRepositoryFile? _orderRepo;
+    private static StaffRepositoryFile? _staffRepo;
 
-    public static CustomerRepository CustomerRepository =>
-        _customerRepo ??= new CustomerRepository(CustomerStore);
+    public static CustomerRepositoryFile CustomerRepository =>
+        _customerRepo ??= new CustomerRepositoryFile(CustomerStore);
 
-    public static ProductRepository ProductRepository =>
-        _productRepo ??= new ProductRepository(ProductStore);
+    public static ProductRepositoryFile ProductRepository =>
+        _productRepo ??= new ProductRepositoryFile(ProductStore);
 
-    public static OrderRepository OrderRepository =>
-        _orderRepo ??= new OrderRepository(OrderStore);
-
-    public static StaffRepository StaffRepository => 
-        _staffRepo ??= new StaffRepository(StaffStore);
+    public static OrderRepositoryFile OrderRepository =>
+        _orderRepo ??= new OrderRepositoryFile(OrderStore);
+    public static StaffRepositoryFile StaffRepository => 
+        _staffRepo ??= new StaffRepositoryFile(StaffStore);
 
     // =========================
     // SERVICE (Singleton)

@@ -1,5 +1,6 @@
 ﻿ using Application.Interface;
 using Domain.Entity;
+using Infrastructure.Data;
 using UI.Handler;
 
 namespace UI
@@ -7,7 +8,10 @@ namespace UI
     internal class Program
     {
         static void Main(string[] args)
+
         {
+            var conectionString = @"Server=DUONGDG\SQLEXPRESS;Database=ShopDB;Trusted_Connection=True;TrustServerCertificate=True;";
+            var connection = new SqlDbConnection(conectionString);
             while (true)
             {
                 Console.WriteLine(@"
@@ -15,6 +19,7 @@ namespace UI
 2. Staff
 3. Product
 4. Order
+5.Test database connection
 0. Exit");
 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
@@ -38,6 +43,23 @@ namespace UI
                         break;
                     case 4:
                         new OrderConsoleHander(AppFactory.OrderService).Run();
+                        break;
+                    case 5:
+                        try
+                        {
+                            using (var dbConnection = connection.GetConnection())
+                            {
+                                dbConnection.Open();
+                                Console.WriteLine("Kết nối thành công!");
+                                dbConnection.Close();
+                                Console.WriteLine("Đóng kết nối");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Kết nối thất bại: {ex.Message}");
+                        }
+                      
                         break;
                     case 0:
                         return;
