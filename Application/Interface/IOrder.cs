@@ -10,7 +10,6 @@ namespace Application.Interface
     
         void Create(int customerId , List<(int productId,int quantity)> items);
     
-
     
        bool Delete(int id);
     }

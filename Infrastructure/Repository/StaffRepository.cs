@@ -1,5 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
+using Infrastructure.Data;
+using Microsoft.Data.SqlClient;
 
 namespace Infrastructure.Repository;
 
@@ -58,28 +60,88 @@ public class StaffRepositoryFile: IBaseRepository<Staff>
 
 public class StaffRepositoryDb : IBaseRepository<Staff>
 {
+    private readonly SqlDbConnection conn;
+    private readonly string _connectionString;
+    public StaffRepositoryDb(string connectionString)
+    {
+        _connectionString = connectionString;
+        conn = new SqlDbConnection(_connectionString);
+    }
+
     public void Create(Staff entity)
     {
-        throw new NotImplementedException();
+        using var condb = conn.GetConnection();
+        string query = "INSERT INTO Staff (Name, Position, Salary) VALUES (@Name, @Position, @Salary)";
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@Name", entity.Name);
+        cmd.Parameters.AddWithValue("@Position", entity.Position);
+        cmd.Parameters.AddWithValue("@Salary", entity.Salary);
+        condb.Open();
+        cmd.ExecuteNonQuery();
     }
 
     public bool Delete(int id)
     {
-        throw new NotImplementedException();
+        using var condb = conn.GetConnection();
+        string query = "DELETE FROM Staff WHERE StaffId = @Id";
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@Id", id);
+        condb.Open();
+        return cmd.ExecuteNonQuery() > 0;
     }
 
     public IReadOnlyList<Staff> GetAll()
     {
-        throw new NotImplementedException();
+        var staffList = new List<Staff>();
+        using var condb = conn.GetConnection();
+        string query = "SELECT * FROM Staff";
+        using var cmd = new SqlCommand(query, condb);
+        condb.Open();
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            staffList.Add(new Staff
+            {
+                StaffId = (int)reader["StaffId"],
+                Name = reader["Name"].ToString() ?? string.Empty,
+                Position = reader["Position"].ToString() ?? string.Empty,
+                Salary = (decimal)reader["Salary"]
+            });
+        }
+        return staffList;
     }
 
     public Staff? GetById(int id)
     {
-        throw new NotImplementedException();
+       string query = "SELECT * FROM Staff WHERE StaffId = @Id";
+        using var condb = conn.GetConnection();
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@Id", id);
+        condb.Open();
+        using var reader = cmd.ExecuteReader();
+        if (reader.Read())
+        {
+            return new Staff
+            {
+                StaffId = (int)reader["StaffId"],
+                Name = reader["Name"].ToString() ?? string.Empty,
+                Position = reader["Position"].ToString() ?? string.Empty,
+                Salary = (decimal)reader["Salary"]
+            };
+        }
+        return null;
     }
 
     public bool Update(Staff entity)
     {
-        throw new NotImplementedException();
+        using var condb = conn.GetConnection();
+        string query = "UPDATE Staff SET Name = @Name, Position = @Position, Salary = @Salary WHERE StaffId = @Id";
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@Name", entity.Name);
+        cmd.Parameters.AddWithValue("@Position", entity.Position);
+        cmd.Parameters.AddWithValue("@Salary", entity.Salary);
+        cmd.Parameters.AddWithValue("@Id", entity.StaffId);
+        condb.Open();
+        return cmd.ExecuteNonQuery() > 0;
     }
 }

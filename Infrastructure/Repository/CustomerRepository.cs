@@ -1,5 +1,8 @@
 ﻿using Application.Interface;
 using Domain.Entity;
+using Infrastructure.Data;
+using Microsoft.Data.SqlClient;
+using System.Security.Cryptography;
 
 
 namespace Infrastructure.Repository;
@@ -58,28 +61,108 @@ public class CustomerRepositoryFile : IBaseRepository<Customer>
 
 public class CustomerRepositoryDb : IBaseRepository<Customer>
 {
-    public void Create(Customer entity)
+    private readonly string _connectionString;
+    private readonly SqlDbConnection conn;
+    public CustomerRepositoryDb(string connectionString)
     {
-        throw new NotImplementedException();
+        _connectionString = connectionString;
+        conn = new SqlDbConnection(_connectionString);
+    }
+
+    public void Create(Customer entity)
+
+    {
+      
+        using var condb = conn.GetConnection();
+        
+        string querry = @"INSERT INTO Customer (Name, Email, PhoneNumber) 
+                         VALUES (@Name, @Email, @PhoneNumber)";
+        using var cmd = new SqlCommand(querry, condb);
+        cmd.Parameters.AddWithValue("@Name", entity.Name);
+        cmd.Parameters.AddWithValue("@Email", entity.Email);
+        cmd.Parameters.AddWithValue("@PhoneNumber", entity.PhoneNumber);
+        condb.Open();
+        cmd.ExecuteNonQuery();
     }
 
     public bool Delete(int id)
     {
-        throw new NotImplementedException();
+        using var condb = conn.GetConnection();
+        string query = "DELETE FROM Customer WHERE CustomerId = @Id";
+
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@Id", id);
+        condb.Open();
+        return cmd.ExecuteNonQuery() > 0;
+
+        
     }
 
     public IReadOnlyList<Customer> GetAll()
     {
-        throw new NotImplementedException();
+        var customers = new List<Customer>();
+        using var condb = conn.GetConnection();
+        string query = "SELECT * FROM Customer";
+
+        using var cmd = new SqlCommand(query, condb);
+
+        condb.Open();
+        using var reader = cmd.ExecuteReader();
+
+        while (reader.Read())
+        {
+            customers.Add(new Customer
+            {
+                CustomerId = (int)reader["CustomerId"],
+                Name = reader["Name"].ToString() ?? string.Empty,
+                PhoneNumber = reader["PhoneNumber"].ToString() ?? string.Empty,
+                Email = reader["Email"].ToString() ?? string.Empty
+            });
+        }
+
+        return customers;
     }
 
     public Customer? GetById(int id)
     {
-        throw new NotImplementedException();
+        using var condb = conn.GetConnection();
+        string query = @"SELECT * FROM Customer WHERE CustomerId = @Id";
+
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@Id", id);
+        condb.Open();
+        using var reader = cmd.ExecuteReader();
+
+        if (reader.Read())
+        {
+            return new Customer
+            {
+                CustomerId = (int)reader["CustomerId"],
+                Name = reader["Name"].ToString() ?? string.Empty,
+                PhoneNumber = reader["PhoneNumber"].ToString() ?? string.Empty,
+                Email = reader["Email"].ToString() ?? string.Empty
+            };
+        }
+
+        return null;
     }
 
     public bool Update(Customer entity)
     {
-        throw new NotImplementedException();
+        string query = @"UPDATE Customer 
+                         SET Name = @Name, Email = @Email, PhoneNumber = @PhoneNumber
+                         WHERE CustomerId = @Id";
+        using var condb = conn.GetConnection();
+        using var cmd = new SqlCommand(query, condb);
+        
+
+        cmd.Parameters.AddWithValue("@Name", entity.Name);
+        cmd.Parameters.AddWithValue("@Email", entity.Email);
+        cmd.Parameters.AddWithValue("@PhoneNumber", entity.PhoneNumber);
+        cmd.Parameters.AddWithValue("@Id", entity.CustomerId);
+        condb.Open();
+        return cmd.ExecuteNonQuery() > 0;
+
+        
     }
 }
