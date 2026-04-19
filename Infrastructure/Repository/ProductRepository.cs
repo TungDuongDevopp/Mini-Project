@@ -2,9 +2,9 @@
 using Domain.Entity;
 
 
-namespace Infrastructure.Repository.File;
+namespace Infrastructure.Repository;
 
-public class ProductRepositoryFile: IProductRepository
+public class ProductRepositoryFile : IProductRepository
 {
     private List<Product> _products = new();
     private readonly IDataStore<Product> _dataStore;
@@ -68,5 +68,39 @@ public class ProductRepositoryFile: IProductRepository
         product.StockQuantity -= quantity;
 
         _dataStore.Save(_products);
+    }
+}
+
+
+public class ProductRepositoryDb : IProductRepository
+{
+    public void Create(Product entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void DecreaseStock(int productId, int quantity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool Delete(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IReadOnlyList<Product> GetAll()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Product? GetById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool Update(Product entity)
+    {
+        throw new NotImplementedException();
     }
 }

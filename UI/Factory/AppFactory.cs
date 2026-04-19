@@ -1,7 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 using Infrastructure.Data;
-using Infrastructure.Repository.File;
+using Infrastructure.Repository;
 
 internal static class AppFactory
 {
