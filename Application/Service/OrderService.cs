@@ -85,12 +85,12 @@ public class OrderServiceFile: IOrder
 
 public class OrderServiceDb : IOrder
 {
-    private readonly IOrderRepository _orderRepo;
+    private readonly IBaseRepository<Order> _orderRepo;
     private readonly IBaseRepository<Customer> _customerRepo;
     private readonly IProductRepository _productRepo;
 
     public OrderServiceDb(
-        IOrderRepository orderRepo,
+        IBaseRepository<Order> orderRepo,
         IBaseRepository<Customer> customerRepo,
         IProductRepository productRepo)
     {
@@ -139,21 +139,20 @@ public class OrderServiceDb : IOrder
 
         order.TotalAmount = total;
 
-        _orderRepo.CreateOrderWithDetails(order);
+        _orderRepo.Create(order);
     }
 
     public bool Delete(int id)
     {
-        throw new NotImplementedException();
+        _orderRepo.Delete(id);
+         return true;
     }
 
     public IReadOnlyList<Order> GetAll()
-    {
-        throw new NotImplementedException();
-    }
+    => _orderRepo.GetAll().ToList();
+    
 
     public Order? GetById(int id)
-    {
-        throw new NotImplementedException();
-    }
+       => _orderRepo.GetById(id);
+    
 }
