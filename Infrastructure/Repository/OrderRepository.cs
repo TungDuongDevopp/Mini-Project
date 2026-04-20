@@ -44,20 +44,20 @@ public class OrderRepositoryFile : IBaseRepository<Order>
         throw new NotSupportedException("Order does not support update");
     }
 }
-public class OrderRepositoryDb : IOrderRepository
+public class OrderRepositoryDb : IBaseRepository<Order>
 {
     private readonly string _connectionString;
+    private readonly SqlDbConnection conn;
 
     public OrderRepositoryDb(string connectionString)
     {
         _connectionString = connectionString;
+        conn = new SqlDbConnection(_connectionString);
     }
 
-  
-
-    public void CreateOrderWithDetails(Order order)
+    public void Create(Order order)
     {
-        var conn = new SqlDbConnection(_connectionString);
+        
         using var condb = conn.GetConnection();
         condb.Open();
 
@@ -67,14 +67,13 @@ public class OrderRepositoryDb : IOrderRepository
         {
             // 1. Insert Order
             string insertOrder = @"
-                INSERT INTO Orders (CustomerId, OrderDate, TotalAmount)
-                VALUES (@CustomerId, @OrderDate, @TotalAmount);
+                INSERT INTO Orders (CustomerId, TotalAmount)
+                VALUES (@CustomerId, @TotalAmount);
                 SELECT SCOPE_IDENTITY();";
 
             using var cmdOrder = new SqlCommand(insertOrder, condb, tran);
 
             cmdOrder.Parameters.AddWithValue("@CustomerId", order.CustomerId);
-            cmdOrder.Parameters.AddWithValue("@OrderDate", DateTime.Now);
             cmdOrder.Parameters.AddWithValue("@TotalAmount", order.TotalAmount);
 
             int orderId = Convert.ToInt32(cmdOrder.ExecuteScalar());
@@ -84,7 +83,7 @@ public class OrderRepositoryDb : IOrderRepository
             {
                 // Insert detail
                 string insertDetail = @"
-                    INSERT INTO OrderDetails (OrderId, ProductId, Quantity, UnitPrice)
+                    INSERT INTO OrderDetails (OrderId, ProductId, Quantity, Price)
                     VALUES (@OrderId, @ProductId, @Quantity, @Price)";
 
                 using var cmdDetail = new SqlCommand(insertDetail, condb, tran);
@@ -119,8 +118,151 @@ public class OrderRepositoryDb : IOrderRepository
         }
     }
 
-   
+  
 
-   
+    public bool Delete(int id)
+    {
+       using var condb = conn.GetConnection();
+        condb.Open();
+        using var tran = condb.BeginTransaction();
+        try
+        {
+            // 1. Get OrderDetails to restore stock
+            string selectDetails = "SELECT ProductId, Quantity FROM OrderDetails WHERE OrderId = @OrderId";
+            List<(int ProductId, int Quantity)> details = new();
+            using (var cmdSelect = new SqlCommand(selectDetails, condb, tran))
+            {
+                cmdSelect.Parameters.AddWithValue("@OrderId", id);
+                using var reader = cmdSelect.ExecuteReader();
+                while (reader.Read())
+                {
+                    details.Add((reader.GetInt32(0), reader.GetInt32(1)));
+                }
+            }
+            // 2. Delete OrderDetails
+            string deleteDetails = "DELETE FROM OrderDetails WHERE OrderId = @OrderId";
+            using (var cmdDeleteDetails = new SqlCommand(deleteDetails, condb, tran))
+            {
+                cmdDeleteDetails.Parameters.AddWithValue("@OrderId", id);
+                cmdDeleteDetails.ExecuteNonQuery();
+            }
+            // 3. Delete Order
+            string deleteOrder = "DELETE FROM Orders WHERE OrderId = @OrderId";
+            using (var cmdDeleteOrder = new SqlCommand(deleteOrder, condb, tran))
+            {
+                cmdDeleteOrder.Parameters.AddWithValue("@OrderId", id);
+                int rowsAffected = cmdDeleteOrder.ExecuteNonQuery();
+                if (rowsAffected == 0)
+                {
+                    tran.Rollback();
+                    return false; // No order deleted
+                }
+            }
+            // 4. Restore stock
+            foreach (var detail in details)
+            {
+                string updateStock = @"
+                    UPDATE Products
+                    SET StockQuantity = StockQuantity + @Quantity
+                    WHERE ProductId = @ProductId";
+                using var cmdStock = new SqlCommand(updateStock, condb, tran);
+                cmdStock.Parameters.AddWithValue("@Quantity", detail.Quantity);
+                cmdStock.Parameters.AddWithValue("@ProductId", detail.ProductId);
+                cmdStock.ExecuteNonQuery();
+            }
+            tran.Commit();
+            return true;
+        }
+        catch
+        {
+            tran.Rollback();
+            throw;
+        }
+    }
+
+    public IReadOnlyList<Order> GetAll()
+    {
+       using var condb = conn.GetConnection();
+        condb.Open();
+        string query = @"
+            SELECT o.OrderId, o.CustomerId, o.OrderDate, o.TotalAmount,
+                   od.OrderDetailId, od.ProductId, od.Quantity, od.UnitPrice
+            FROM Orders o
+            LEFT JOIN OrderDetails od ON o.OrderId = od.OrderId";
+        var ordersDict = new Dictionary<int, Order>();
+        using var cmd = new SqlCommand(query, condb);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            int orderId = (int)reader["OrderId"];
+            if (!ordersDict.TryGetValue(orderId, out var order))
+            {
+                order = new Order
+                {
+                    OrderId = (int)reader["OrderId"],
+                    CustomerId = (int)reader["CustomerId"],
+                    TotalAmount = (decimal)reader["TotalAmount"],
+                    Details = new List<OrderDetail>()
+                };
+                ordersDict[orderId] = order;
+            }
+            if (!reader.IsDBNull(4)) // Check if OrderDetail exists
+            {
+                order.Details.Add(new OrderDetail
+                {
+                    OrderDetailId = (int)reader["OrderDetailId"],
+                    ProductId = (int)reader["ProductId"],
+                    Quantity = (int)reader["Quantity"],
+                    Price = (decimal)reader["Price"]
+                });
+            }
+        }
+        return ordersDict.Values.ToList();
+    }
+
+    public Order? GetById(int id)
+    {
+       using var condb = conn.GetConnection();
+        condb.Open();
+        string query = @"
+            SELECT o.OrderId, o.CustomerId, o.OrderDate, o.TotalAmount,
+                   od.OrderDetailId, od.ProductId, od.Quantity, od.UnitPrice
+            FROM Orders o
+            LEFT JOIN OrderDetails od ON o.OrderId = od.OrderId
+            WHERE o.OrderId = @OrderId";
+        Order? order = null;
+        using var cmd = new SqlCommand(query, condb);
+        cmd.Parameters.AddWithValue("@OrderId", id);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            if (order == null)
+            {
+                order = new Order
+                {
+                    OrderId = (int)reader["OrderId"],
+                    CustomerId = (int)reader["CustomerId"],
+                    TotalAmount = (decimal)reader["TotalAmount"],
+                    Details = new List<OrderDetail>()
+                };
+            }
+            if (!reader.IsDBNull(4)) // Check if OrderDetail exists
+            {
+                order.Details.Add(new OrderDetail
+                {
+                    OrderDetailId = (int)reader["OrderDetailId"],
+                    ProductId = (int)reader["ProductId"],
+                    Quantity = (int)reader["Quantity"],
+                    Price = (decimal)reader["Price"]
+                });
+            }
+        }
+        return order;
+    }
+
+    public bool Update(Order entity)
+    {
+        throw new NotSupportedException("Order does not support update");
+    }
 }
 
