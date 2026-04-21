@@ -3,7 +3,7 @@ using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Repository;
 
-internal static class AppFactory
+internal static class AppFactoryFile
 {
     private static readonly string BasePath = AppDomain.CurrentDomain.BaseDirectory;
 
@@ -58,7 +58,7 @@ internal static class AppFactory
 
     private static CustomerService? _customerService;
     private static ProductService? _productService;
-    private static OrderService? _orderService;
+    private static OrderServiceFile? _orderService;
     private static StaffService? _staffService;
 
     public static CustomerService CustomerService =>
@@ -70,8 +70,8 @@ internal static class AppFactory
     public static StaffService StaffService =>
         _staffService ??= new StaffService(StaffRepository);
 
-    public static OrderService OrderService =>
-        _orderService ??= new OrderService(
+    public static OrderServiceFile OrderService =>
+        _orderService ??= new OrderServiceFile(
             OrderRepository,
             ProductRepository,
             CustomerService
