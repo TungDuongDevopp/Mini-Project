@@ -1,4 +1,6 @@
 ﻿
+using Domain.Entity;
+using Infrastructure.Repository;
 using UI.Factory;
 using UI.Handler;
 
@@ -9,7 +11,7 @@ namespace UI
         static void Main(string[] args)
 
         {
-   
+            Console.WriteLine("Chào mừng bạn đến vs phần mềm của dương");
            while (true)
 
             {

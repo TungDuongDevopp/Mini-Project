@@ -5,6 +5,7 @@ public class CustomerService : IBaseRepository<Customer>
 {
     private readonly IBaseRepository<Customer> _repo;
 
+
     public CustomerService(IBaseRepository<Customer> repo)
     {
         _repo = repo;
@@ -44,7 +45,8 @@ public class CustomerService : IBaseRepository<Customer>
         return _repo.Update(customer);
     }
 
-    public bool Delete(int id) => _repo.Delete(id);
+    public bool Delete(int id)=> _repo.Delete(id);
+
 
     public IReadOnlyList<Customer> GetAll() => _repo.GetAll().ToList();
 

@@ -2,7 +2,6 @@
 using Domain.Entity;
 using Infrastructure.Data;
 using Microsoft.Data.SqlClient;
-using System.Security.Cryptography;
 
 
 namespace Infrastructure.Repository;
@@ -154,15 +153,15 @@ public class CustomerRepositoryDb : IBaseRepository<Customer>
                          WHERE CustomerId = @Id";
         using var condb = conn.GetConnection();
         using var cmd = new SqlCommand(query, condb);
-        
-
+      
         cmd.Parameters.AddWithValue("@Name", entity.Name);
         cmd.Parameters.AddWithValue("@Email", entity.Email);
         cmd.Parameters.AddWithValue("@PhoneNumber", entity.PhoneNumber);
         cmd.Parameters.AddWithValue("@Id", entity.CustomerId);
         condb.Open();
         return cmd.ExecuteNonQuery() > 0;
+     
 
-        
+
     }
 }

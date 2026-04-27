@@ -78,14 +78,32 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
                     Console.Write("Nhập ID cần update: ");
                     int updateId = int.Parse(Console.ReadLine());
 
-                    var updated = Input();
+                    var existing = _customerService.GetById(updateId);
 
-                    _customerService.Update(updated);
+                    if (existing != null)
+                    {
+                        existing.Name = InputHelper.Input("Enter Customer Name:", Parsers.String);
+                        existing.PhoneNumber = InputHelper.Input("Enter Customer Phone Number:", Parsers.String,
+                            v => Validator.IsValidPhone(v) && _customerService.IsPhoneUnique(v, updateId));
+
+                        existing.Email = InputHelper.Input("Enter Customer Email:", Parsers.String,
+                            v => Validator.IsValidEmail(v) && _customerService.IsEmailUnique(v, updateId));
+
+                        _customerService.Update(existing);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Không tìm thấy khách hàng với ID này.");
+                    }
                     break;
-
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
+                    if (_customerService.GetById(deleteId) == null)
+                    {
+                        Console.WriteLine("Không tìm thấy khách hàng với ID này.");
+                        break;
+                    }
                     _customerService.Delete(deleteId);
                     break;
 
