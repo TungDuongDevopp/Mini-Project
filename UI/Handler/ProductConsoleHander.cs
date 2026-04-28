@@ -35,14 +35,14 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     public void Output(Product entity)
         
     {  
-        Console.WriteLine($"{entity.ProductId,-3} | {entity.Name,-25} | {entity.Price.ToString("N0"),-10} | {entity.Description,-30} | {entity.StockQuantity,-5}");
+        Console.WriteLine($"{entity.ProductId,-3} | {entity.Name,-35} | {entity.Price.ToString("N0"),-10} | {entity.Description,-40} | {entity.StockQuantity,-5}");
     }
 
     public void OutputList(IEnumerable<Product> list)
     {
         Console.WriteLine("Danh sách sản phẩm là: ");
         Console.WriteLine("-----------------------------------------------------------------------------------------------------------------------");
-        Console.WriteLine($"{"ID",-3} | {"Name",-25} | {"Price",-10} | {"Description",-30} | {"StockQuantity",-5}");
+        Console.WriteLine($"{"ID",-3} | {"Name",-35} | {"Price",-10} | {"Description",-40} | {"StockQuantity",-5}");
         foreach (Product product in list) { 
         Output(product);
         }
@@ -79,15 +79,29 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
                 case 3:
                     Console.Write("Nhập ID cần update: ");
                     int updateId = int.Parse(Console.ReadLine());
-
-                    var updated = Input();
-                    
-                        _productService.Update(updated);
-                    break;
+                    var existing = _productService.GetById(updateId);
+                    if(existing != null)
+                    {
+                        existing.Name = InputHelper.Input("Enter Product Name:", InputHelper.Parsers.String);
+                        existing.Description = InputHelper.Input("Enter Product Description:", InputHelper.Parsers.String);
+                        existing.Price = InputHelper.Input("Enter Product Price:", InputHelper.Parsers.Decimal, Validator.IsValidMoney);
+                        existing.StockQuantity = InputHelper.Input("Enter Product Stock Quantity:", InputHelper.Parsers.Int, x => x >= 0);
+                        _productService.Update(existing);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Không tìm thấy sản phẩm với ID đã nhập.");
+                    }
+                        break;
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
+                    if(_productService.GetById(deleteId) == null)
+                    {
+                        Console.WriteLine("Không tìm thấy sản phẩm với ID đã nhập.");
+                        break;
+                    }
                     _productService.Delete(deleteId);
                     break;
 

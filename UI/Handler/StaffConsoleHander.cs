@@ -81,15 +81,31 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
                     Console.Write("Nhập ID cần update: ");
                     int updateId = int.Parse(Console.ReadLine());
 
-                    var updated = Input();
-
-                    _staffService.Update(updated);
+                   var existing = _staffService.GetById(updateId);
+                    if (existing == null)
+                    {
+                        Console.WriteLine("Không tìm thấy nhân viên!");
+                        break;
+                    }
+                    else
+                    {
+                        existing.Name = InputHelper.Input("Enter Staff Name:", InputHelper.Parsers.String);
+                        existing.Position = InputHelper.Input("Enter Position:", InputHelper.Parsers.String);
+                        existing.Salary = InputHelper.Input("Enter Salary:", InputHelper.Parsers.Decimal, Validator.IsValidMoney);
+                        _staffService.Update(existing);
+                    }
+                        
 
                     break;
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
                     int deleteId = int.Parse(Console.ReadLine());
+                    if (_staffService.GetById(deleteId) == null)
+                    {
+                        Console.WriteLine("Không tìm thấy nhân viên!");
+                        break;
+                    }
                     _staffService.Delete(deleteId);
                     break;
 

@@ -87,7 +87,7 @@ public class ProductRepositoryDb : IProductRepository
     }
     public void Create(Product entity)
     {
-        string query = "INSERT INTO Products (Name, Description, Price, StockQuantity) VALUES (@Name, @Description, @Price, @StockQuantity)";
+        string query = "INSERT INTO Product (Name, Description, Price, StockQuantity) VALUES (@Name, @Description, @Price, @StockQuantity)";
         using var condb = conn.GetConnection();
         using var cmd = new SqlCommand(query, condb);
         cmd.Parameters.AddWithValue("@Name", entity.Name);
@@ -118,7 +118,7 @@ public class ProductRepositoryDb : IProductRepository
 
     public bool Delete(int id)
     {
-        string query = "DELETE FROM Products WHERE ProductId = @ProductId";
+        string query = "DELETE FROM Product WHERE ProductId = @ProductId";
         using var condb = conn.GetConnection();
         using var cmd = new SqlCommand(query, condb);
         cmd.Parameters.AddWithValue("@ProductId", id);
@@ -130,7 +130,7 @@ public class ProductRepositoryDb : IProductRepository
     {
         var products = new List<Product>();
         using var condb = conn.GetConnection();
-        string query = "SELECT * FROM Products";
+        string query = "SELECT * FROM Product";
         using var cmd = new SqlCommand(query, condb);
         condb.Open();
         using var reader = cmd.ExecuteReader();
@@ -150,7 +150,7 @@ public class ProductRepositoryDb : IProductRepository
 
     public Product? GetById(int id)
     {
-        string query = "SELECT * FROM Products WHERE ProductId = @ProductId";
+        string query = "SELECT * FROM Product WHERE ProductId = @ProductId";
         using var condb = conn.GetConnection();
         using var cmd = new SqlCommand(query, condb);
         cmd.Parameters.AddWithValue("@ProductId", id);
@@ -173,7 +173,7 @@ public class ProductRepositoryDb : IProductRepository
     public bool Update(Product entity)
     {
         using var condb = conn.GetConnection();
-        string query = "UPDATE Products SET Name = @Name, Description = @Description, Price = @Price, StockQuantity = @StockQuantity WHERE ProductId = @ProductId";
+        string query = "UPDATE Product SET Name = @Name, Description = @Description, Price = @Price, StockQuantity = @StockQuantity WHERE ProductId = @ProductId";
         using var cmd = new SqlCommand(query, condb);
         cmd.Parameters.AddWithValue("@Name", entity.Name);
         cmd.Parameters.AddWithValue("@Description", entity.Description);
