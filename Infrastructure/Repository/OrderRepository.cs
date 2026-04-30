@@ -67,7 +67,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
         {
             // 1. Insert Order
             string insertOrder = @"
-                INSERT INTO Orders (CustomerId, TotalAmount)
+                INSERT INTO [Order] (CustomerId, TotalAmount)
                 VALUES (@CustomerId, @TotalAmount);
                 SELECT SCOPE_IDENTITY();";
 
@@ -83,7 +83,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
             {
                 // Insert detail
                 string insertDetail = @"
-                    INSERT INTO OrderDetails (OrderId, ProductId, Quantity, Price)
+                    INSERT INTO OrderDetail (OrderId, ProductId, Quantity, Price)
                     VALUES (@OrderId, @ProductId, @Quantity, @Price)";
 
                 using var cmdDetail = new SqlCommand(insertDetail, condb, tran);
@@ -97,7 +97,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
 
                 // Update stock
                 string updateStock = @"
-                    UPDATE Products
+                    UPDATE Product
                     SET StockQuantity = StockQuantity - @Quantity
                     WHERE ProductId = @ProductId";
 
@@ -128,7 +128,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
         try
         {
             // 1. Get OrderDetails to restore stock
-            string selectDetails = "SELECT ProductId, Quantity FROM OrderDetails WHERE OrderId = @OrderId";
+            string selectDetails = "SELECT * FROM OrderDetail WHERE OrderId = @OrderId";
             List<(int ProductId, int Quantity)> details = new();
             using (var cmdSelect = new SqlCommand(selectDetails, condb, tran))
             {
@@ -140,14 +140,14 @@ public class OrderRepositoryDb : IBaseRepository<Order>
                 }
             }
             // 2. Delete OrderDetails
-            string deleteDetails = "DELETE FROM OrderDetails WHERE OrderId = @OrderId";
+            string deleteDetails = "DELETE FROM OrderDetail WHERE OrderId = @OrderId";
             using (var cmdDeleteDetails = new SqlCommand(deleteDetails, condb, tran))
             {
                 cmdDeleteDetails.Parameters.AddWithValue("@OrderId", id);
                 cmdDeleteDetails.ExecuteNonQuery();
             }
             // 3. Delete Order
-            string deleteOrder = "DELETE FROM Orders WHERE OrderId = @OrderId";
+            string deleteOrder = "DELETE FROM [Order] WHERE OrderId = @OrderId";
             using (var cmdDeleteOrder = new SqlCommand(deleteOrder, condb, tran))
             {
                 cmdDeleteOrder.Parameters.AddWithValue("@OrderId", id);
@@ -162,7 +162,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
             foreach (var detail in details)
             {
                 string updateStock = @"
-                    UPDATE Products
+                    UPDATE Product
                     SET StockQuantity = StockQuantity + @Quantity
                     WHERE ProductId = @ProductId";
                 using var cmdStock = new SqlCommand(updateStock, condb, tran);
@@ -184,11 +184,8 @@ public class OrderRepositoryDb : IBaseRepository<Order>
     {
        using var condb = conn.GetConnection();
         condb.Open();
-        string query = @"
-            SELECT o.OrderId, o.CustomerId, o.OrderDate, o.TotalAmount,
-                   od.OrderDetailId, od.ProductId, od.Quantity, od.UnitPrice
-            FROM Orders o
-            LEFT JOIN OrderDetails od ON o.OrderId = od.OrderId";
+        string query = @"  SELECT *  FROM [Order] o
+            LEFT JOIN OrderDetail od ON o.OrderId = od.OrderId";
         var ordersDict = new Dictionary<int, Order>();
         using var cmd = new SqlCommand(query, condb);
         using var reader = cmd.ExecuteReader();
@@ -225,10 +222,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
        using var condb = conn.GetConnection();
         condb.Open();
         string query = @"
-            SELECT o.OrderId, o.CustomerId, o.OrderDate, o.TotalAmount,
-                   od.OrderDetailId, od.ProductId, od.Quantity, od.UnitPrice
-            FROM Orders o
-            LEFT JOIN OrderDetails od ON o.OrderId = od.OrderId
+            SELECT * FROM [Order] o LEFT JOIN OrderDetail od ON o.OrderId = od.OrderId
             WHERE o.OrderId = @OrderId";
         Order? order = null;
         using var cmd = new SqlCommand(query, condb);

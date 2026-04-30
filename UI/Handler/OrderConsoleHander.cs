@@ -210,7 +210,14 @@ internal class OrderConsoleHanderDb
                     break;
                 case 3:
                     Console.Write("Nhập ID cần xóa: ");
+                    
                     int deleteId = int.Parse(Console.ReadLine());
+                    var existingOrder = _orderService.GetById(deleteId);
+                    if (existingOrder == null)
+                    {
+                        Console.WriteLine("Order not found.");
+                        break;
+                    }
                     _orderService.Delete(deleteId);
                     break;
 
