@@ -145,3 +145,5 @@ public class StaffRepositoryDb : IBaseRepository<Staff>
         return cmd.ExecuteNonQuery() > 0;
     }
 }
+
+public class StaffRepositoryDbContext { }

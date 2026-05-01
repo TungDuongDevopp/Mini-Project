@@ -1,6 +1,5 @@
 ﻿
-using Domain.Entity;
-using Infrastructure.Repository;
+using Infrastructure.Db_Context;
 using UI.Factory;
 using UI.Handler;
 
@@ -11,6 +10,7 @@ namespace UI
         static void Main(string[] args)
 
         {
+            string conn = @"Server=DUONGDG\SQLEXPRESS;Database=ShopMobileDB;Trusted_Connection=True;TrustServerCertificate=True;";
             Console.WriteLine("Chào mừng bạn đến vs phần mềm của dương");
            while (true)
 
@@ -19,6 +19,8 @@ namespace UI
                 Console.WriteLine(@"
 1.  Thao tác với file
 2.  Thao tác với database
+3.  Tạo database
+4.  Xóa database
 0.  Thoát");
                 if (!int.TryParse(Console.ReadLine(), out int choices))
                 {
@@ -111,6 +113,28 @@ namespace UI
                             }
                         }
          
+                    case 3:
+                        try
+                        {
+                            new ShopDbContext(conn).CreateDatabase(new ShopDbContext(conn));
+                            Console.WriteLine("Tạo database thành công");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Lỗi khi tạo database: {ex.Message}");
+                        }
+                        break;
+                    case 4:
+                        try
+                        {
+                            new ShopDbContext(conn).DeleteDatabase(new ShopDbContext(conn));
+                            Console.WriteLine("Xóa database thành công");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Lỗi khi xóa database: {ex.Message}");
+                        }
+                        break;
                     case 0:
                         return;
                     default:

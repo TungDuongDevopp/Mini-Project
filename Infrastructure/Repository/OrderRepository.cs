@@ -260,3 +260,4 @@ public class OrderRepositoryDb : IBaseRepository<Order>
     }
 }
 
+public class OrderRepositoryDbContext { }

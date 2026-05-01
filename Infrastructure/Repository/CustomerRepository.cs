@@ -165,3 +165,8 @@ public class CustomerRepositoryDb : IBaseRepository<Customer>
 
     }
 }
+
+public class CustomerRepositoryDbContext
+{
+    
+}

@@ -186,3 +186,8 @@ public class ProductRepositoryDb : IProductRepository
 
     }
 }
+
+public class ProductRepositoryDbConext
+{
+
+}
