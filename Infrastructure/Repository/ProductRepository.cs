@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 using Infrastructure.Data;
+using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
 
 
@@ -187,7 +188,60 @@ public class ProductRepositoryDb : IProductRepository
     }
 }
 
-public class ProductRepositoryDbConext
-{
+public class ProductRepositoryDbConext : IProductRepository
 
+{
+    private readonly ShopDbContext _context;
+    private readonly string _connectionString;
+    public ProductRepositoryDbConext(string connectionString)
+    {
+        _connectionString = connectionString;
+        _context = new ShopDbContext(_connectionString);
+    }
+
+    public void Create(Product entity)
+    {
+       _context.Products.Add(entity);
+        _context.SaveChanges();
+    }
+
+    public void DecreaseStock(int productId, int quantity)
+    {
+       var product = GetById(productId);
+        if (product == null)
+            throw new Exception("Product not found");
+        if (quantity <= 0)
+            throw new ArgumentException("Quantity must be greater than 0");
+        if (product.StockQuantity < quantity)
+            throw new InvalidOperationException("Not enough stock");
+        product.StockQuantity -= quantity;
+        _context.SaveChanges();
+    }
+
+    public bool Delete(int id)
+    {
+        var product = GetById(id);
+        if (product == null) return false;
+        _context.Products.Remove(product);
+        _context.SaveChanges();
+        return true;
+    }
+
+    public IReadOnlyList<Product> GetAll()
+   => _context.Products.ToList();
+
+    public Product? GetById(int id)
+    => _context.Products.Find(id);
+
+    public bool Update(Product entity)
+    {
+        var existing = GetById(entity.ProductId);
+        if (existing == null) return false;
+        existing.Name = entity.Name;
+        existing.Description = entity.Description;
+        existing.Price = entity.Price;
+        existing.StockQuantity = entity.StockQuantity;
+        _context.SaveChanges();
+        return true;
+    }
 }

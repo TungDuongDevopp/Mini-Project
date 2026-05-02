@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 using Infrastructure.Data;
+using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
 
 namespace Infrastructure.Repository;
@@ -146,4 +147,45 @@ public class StaffRepositoryDb : IBaseRepository<Staff>
     }
 }
 
-public class StaffRepositoryDbContext { }
+public class StaffRepositoryDbContext : IBaseRepository<Staff>
+{
+    private readonly string _conn;
+    private readonly ShopDbContext _dbContext;
+    public StaffRepositoryDbContext(string connectionString)
+    {
+        _conn = connectionString;
+        _dbContext = new ShopDbContext(_conn);
+    }
+
+    public void Create(Staff entity)
+    {
+        _dbContext.Staffs.Add(entity);
+        _dbContext.SaveChanges();
+    }
+
+    public bool Delete(int id)
+    {
+        var existing = GetById(id);
+        if (existing == null) return false;
+        _dbContext.Staffs.Remove(existing);
+        _dbContext.SaveChanges();
+        return true;
+    }
+
+    public IReadOnlyList<Staff> GetAll()
+        => _dbContext.Staffs.ToList();
+
+    public Staff? GetById(int id)
+        => _dbContext.Staffs.Find(id);
+
+    public bool Update(Staff entity)
+    {
+        var existing = GetById(entity.StaffId);
+        if (existing == null) return false;
+        existing.Name = entity.Name;
+        existing.Position = entity.Position;
+        existing.Salary = entity.Salary;
+        _dbContext.SaveChanges();
+        return true;
+    }
+}

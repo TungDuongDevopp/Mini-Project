@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 using Infrastructure.Data;
+using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
 
 
@@ -118,8 +119,6 @@ public class OrderRepositoryDb : IBaseRepository<Order>
         }
     }
 
-  
-
     public bool Delete(int id)
     {
        using var condb = conn.GetConnection();
@@ -176,7 +175,7 @@ public class OrderRepositoryDb : IBaseRepository<Order>
         catch
         {
             tran.Rollback();
-            throw;
+            return false;
         }
     }
 
@@ -260,4 +259,75 @@ public class OrderRepositoryDb : IBaseRepository<Order>
     }
 }
 
-public class OrderRepositoryDbContext { }
+public class OrderRepositoryDbContext:IBaseRepository<Order>
+
+{
+    private readonly ShopDbContext _context;
+    private readonly string _connectionString;
+        public OrderRepositoryDbContext(string connectionString)
+        {
+            _context = new ShopDbContext(connectionString);
+            _connectionString = connectionString;
+    }
+    public void Create(Order order)
+    {
+        using var tran = _context.Database.BeginTransaction();
+
+        try
+        {
+            foreach (var detail in order.Details)
+            {
+                var product = _context.Products.Find(detail.ProductId);
+
+                if (product.StockQuantity < detail.Quantity)
+                    throw new Exception("Not enough stock");
+
+                product.StockQuantity -= detail.Quantity;
+            }
+
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+
+            tran.Commit();
+        }
+        catch
+        {
+            tran.Rollback();
+            throw;
+        }
+    }
+    public bool Delete(int id)
+    {   using var tran = _context.Database.BeginTransaction();
+        try {
+
+            var order = GetById(id);
+            if (order == null) return false;
+            foreach (var detail in order.Details)
+            {
+                var product = _context.Products.Find(detail.ProductId);
+                product.StockQuantity += detail.Quantity;
+            }
+            _context.Orders.Remove(order);
+            _context.SaveChanges();
+            tran.Commit();
+            return true;
+        }
+        catch
+        {   
+            tran.Rollback();
+            return false;
+        }
+    }
+    public IReadOnlyList<Order> GetAll()
+    => _context.Orders.ToList();
+    public Order? GetById(int id)
+    => _context.Orders.Find(id);
+
+
+    public bool Update(Order entity)
+    {
+        throw new NotSupportedException("Order does not support update");
+    }
+
+
+}

@@ -1,6 +1,7 @@
 ﻿using Application.Interface;
 using Domain.Entity;
 using Infrastructure.Data;
+using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
 
 
@@ -166,7 +167,50 @@ public class CustomerRepositoryDb : IBaseRepository<Customer>
     }
 }
 
-public class CustomerRepositoryDbContext
+public class CustomerRepositoryDbContext : IBaseRepository<Customer>
 {
+        private readonly string _conn;
+        private readonly ShopDbContext _dbContext;
+        public CustomerRepositoryDbContext(string connectionString)
+        {
+            _conn = connectionString;
+            _dbContext = new ShopDbContext(_conn);
+        }
+
+
     
+    public void Create(Customer entity)
+    {
+        _dbContext.Customers.Add(entity);
+        _dbContext.SaveChanges();
+    }
+
+    public bool Delete(int id)
+    {
+        var existing = GetById(id);
+        if (existing == null) return false;
+         _dbContext.Customers.Remove(existing);
+        _dbContext.SaveChanges();
+        return true;
+    }
+
+    public IReadOnlyList<Customer> GetAll()
+    => _dbContext.Customers.ToList();
+    
+
+    public Customer? GetById(int id)
+      => _dbContext.Customers.Find(id);
+      
+    
+
+    public bool Update(Customer entity)
+    {
+        var existing = GetById(entity.CustomerId);
+        if (existing == null) return false;
+        existing.Name = entity.Name;
+        existing.Email = entity.Email;
+        existing.PhoneNumber = entity.PhoneNumber;
+        _dbContext.SaveChanges();
+        return true;
+    }
 }
