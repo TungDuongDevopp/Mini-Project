@@ -3,69 +3,18 @@ using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 
 namespace Infrastructure.Repository;
-public class CustomerRepositoryFile : IBaseRepository<Customer>
-{
-    private List<Customer> _customers = new();
-    private readonly IDataStore<Customer> _dataStore;
-
-    public CustomerRepositoryFile(IDataStore<Customer> dataStore)
-    {
-        _dataStore = dataStore;
-        _customers = _dataStore.Load();
-    }
-
-    public void Create(Customer entity)
-    {
-        entity.CustomerId = _customers.Any()
-            ? _customers.Max(x => x.CustomerId) + 1
-            : 1;
-
-        _customers.Add(entity);
-        _dataStore.Save(_customers);
-    }
-
-    public bool Delete(int id)
-    {
-        var customer = GetById(id);
-        if (customer == null) return false;
-
-        _customers.Remove(customer);
-        _dataStore.Save(_customers);
-        return true;
-    }
-
-    public IReadOnlyList<Customer> GetAll()
-        => _customers.ToList();
-
-    public Customer? GetById(int id)
-        => _customers.FirstOrDefault(x => x.CustomerId == id);
-
-    public bool Update(Customer entity)
-    {
-        var existing = GetById(entity.CustomerId);
-        if (existing == null) return false;
-
-        existing.Name = entity.Name;
-        existing.PhoneNumber = entity.PhoneNumber;
-        existing.Email = entity.Email;
-
-        _dataStore.Save(_customers);
-        return true;
-    }
-
-}
-
 
 public class CustomerRepositoryDb : IBaseRepository<Customer>
 {
     private readonly string _connectionString;
     private readonly SqlDbConnection conn;
-    public CustomerRepositoryDb(string connectionString)
+    public CustomerRepositoryDb(IConfiguration config)
     {
-        _connectionString = connectionString;
+        _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         conn = new SqlDbConnection(_connectionString);
     }
 
@@ -171,10 +120,10 @@ public class CustomerRepositoryDbContext : IBaseRepository<Customer>
 {
         private readonly string _conn;
         private readonly ShopDbContext _dbContext;
-        public CustomerRepositoryDbContext(string connectionString)
+        public CustomerRepositoryDbContext(IConfiguration config)
         {
-            _conn = connectionString;
-            _dbContext = new ShopDbContext(_conn);
+            _conn = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        _dbContext = new ShopDbContext(_conn);
         }
 
 

@@ -3,77 +3,10 @@ using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 
 namespace Infrastructure.Repository;
-
-public class ProductRepositoryFile : IProductRepository
-{
-    private List<Product> _products = new();
-    private readonly IDataStore<Product> _dataStore;
-    public ProductRepositoryFile(IDataStore<Product> dataStore)
-    {
-        _dataStore = dataStore;
-        _products = _dataStore.Load();
-    }
-    public void Create(Product product)
-
-    {
-        product.ProductId = _products.Any() ? _products.Max(x => x.ProductId) + 1 : 1;
-
-        _products.Add(product);
-        _dataStore.Save(_products);
-
-    }
-
-    public bool Update(Product product)
-    {
-        var existing = GetById(product.ProductId);
-        if (existing == null) return false;
-        else
-        {
-            existing.Name = product.Name;
-            existing.Description = product.Description;
-            existing.Price = product.Price;
-            existing.StockQuantity = product.StockQuantity;
-        }
-        _dataStore.Save(_products);
-        return true;
-    }
-
-
-    public bool Delete(int id)
-    {
-        var product = GetById(id);
-        if (product == null) return false;
-        _products.Remove(product);
-        _dataStore.Save(_products);
-        return true;
-
-    }
-    public IReadOnlyList<Product> GetAll()
-    => _products.ToList();
-    
-    public Product? GetById(int id)
-      => _products.FirstOrDefault(x => x.ProductId == id);
-    
-    public void DecreaseStock(int productId, int quantity)
-    {
-        var product = GetById(productId);
-
-        if (product == null)
-            throw new Exception("Product not found");
-        if (quantity <= 0)
-            throw new ArgumentException("Quantity must be greater than 0");
-        if (product.StockQuantity < quantity)
-            throw new InvalidOperationException("Not enough stock");
-
-        product.StockQuantity -= quantity;
-
-        _dataStore.Save(_products);
-    }
-}
-
 
 public class ProductRepositoryDb : IProductRepository
 
@@ -81,9 +14,9 @@ public class ProductRepositoryDb : IProductRepository
 {
     private readonly SqlDbConnection conn;
     private readonly string _connectionString;
-    public ProductRepositoryDb(string connectionString)
+    public ProductRepositoryDb(IConfiguration config)
     {
-        _connectionString = connectionString;
+        _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         conn = new SqlDbConnection(_connectionString);
     }
     public void Create(Product entity)
@@ -191,18 +124,18 @@ public class ProductRepositoryDb : IProductRepository
 public class ProductRepositoryDbConext : IProductRepository
 
 {
-    private readonly ShopDbContext _context;
-    private readonly string _connectionString;
-    public ProductRepositoryDbConext(string connectionString)
+    private readonly ShopDbContext _dbContext;
+    private readonly string _conn;
+    public ProductRepositoryDbConext(IConfiguration config)
     {
-        _connectionString = connectionString;
-        _context = new ShopDbContext(_connectionString);
+        _conn = config.GetConnectionString("DefaultConnection")?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        _dbContext = new ShopDbContext(_conn);
     }
 
     public void Create(Product entity)
     {
-       _context.Products.Add(entity);
-        _context.SaveChanges();
+       _dbContext.Products.Add(entity);
+        _dbContext.SaveChanges();
     }
 
     public void DecreaseStock(int productId, int quantity)
@@ -215,23 +148,23 @@ public class ProductRepositoryDbConext : IProductRepository
         if (product.StockQuantity < quantity)
             throw new InvalidOperationException("Not enough stock");
         product.StockQuantity -= quantity;
-        _context.SaveChanges();
+        _dbContext.SaveChanges();
     }
 
     public bool Delete(int id)
     {
         var product = GetById(id);
         if (product == null) return false;
-        _context.Products.Remove(product);
-        _context.SaveChanges();
+        _dbContext.Products.Remove(product);
+        _dbContext.SaveChanges();
         return true;
     }
 
     public IReadOnlyList<Product> GetAll()
-   => _context.Products.ToList();
+   => _dbContext.Products.ToList();
 
     public Product? GetById(int id)
-    => _context.Products.Find(id);
+    => _dbContext.Products.Find(id);
 
     public bool Update(Product entity)
     {
@@ -241,7 +174,7 @@ public class ProductRepositoryDbConext : IProductRepository
         existing.Description = entity.Description;
         existing.Price = entity.Price;
         existing.StockQuantity = entity.StockQuantity;
-        _context.SaveChanges();
+        _dbContext.SaveChanges();
         return true;
     }
 }

@@ -3,56 +3,17 @@ using Domain.Entity;
 using Infrastructure.Data;
 using Infrastructure.Db_Context;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 
-public class OrderRepositoryFile : IBaseRepository<Order>
-{
-    private List<Order> _orders = new();
-    private readonly IDataStore<Order> _dataStore;
-
-    public OrderRepositoryFile(IDataStore<Order> dataStore)
-    {
-        _dataStore = dataStore;
-        _orders = _dataStore.Load();
-    }
-
-    public void Create(Order order)
-    {
-        order.OrderId = _orders.Any() ? _orders.Max(x => x.OrderId) + 1 : 1;
-
-        _orders.Add(order);
-        _dataStore.Save(_orders);
-    }
-
-    public Order? GetById(int id)
-        => _orders.FirstOrDefault(o => o.OrderId == id);
-
-    public IReadOnlyList<Order> GetAll()
-        => _orders.ToList();
-
-    public bool Delete(int id)
-    {
-        var order = GetById(id);
-        if (order == null) return false;
-
-        _orders.Remove(order);
-        _dataStore.Save(_orders);
-        return true;
-    }
-
-    public bool Update(Order entity)
-    {
-        throw new NotSupportedException("Order does not support update");
-    }
-}
 public class OrderRepositoryDb : IBaseRepository<Order>
 {
     private readonly string _connectionString;
     private readonly SqlDbConnection conn;
 
-    public OrderRepositoryDb(string connectionString)
+    public OrderRepositoryDb(IConfiguration config)
     {
-        _connectionString = connectionString;
+        _connectionString = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         conn = new SqlDbConnection(_connectionString);
     }
 
@@ -262,22 +223,21 @@ public class OrderRepositoryDb : IBaseRepository<Order>
 public class OrderRepositoryDbContext:IBaseRepository<Order>
 
 {
-    private readonly ShopDbContext _context;
-    private readonly string _connectionString;
-        public OrderRepositoryDbContext(string connectionString)
+    private readonly ShopDbContext _dbContext;
+    private readonly string _conn;
+        public OrderRepositoryDbContext(IConfiguration config)
         {
-            _context = new ShopDbContext(connectionString);
-            _connectionString = connectionString;
-    }
+            _conn = config.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            _dbContext = new ShopDbContext(_conn);
+        }
     public void Create(Order order)
     {
-        using var tran = _context.Database.BeginTransaction();
-
+        using var tran = _dbContext.Database.BeginTransaction();
         try
         {
             foreach (var detail in order.Details)
             {
-                var product = _context.Products.Find(detail.ProductId);
+                var product = _dbContext.Products.Find(detail.ProductId);
 
                 if (product.StockQuantity < detail.Quantity)
                     throw new Exception("Not enough stock");
@@ -285,8 +245,8 @@ public class OrderRepositoryDbContext:IBaseRepository<Order>
                 product.StockQuantity -= detail.Quantity;
             }
 
-            _context.Orders.Add(order);
-            _context.SaveChanges();
+            _dbContext.Orders.Add(order);
+            _dbContext.SaveChanges();
 
             tran.Commit();
         }
@@ -297,18 +257,18 @@ public class OrderRepositoryDbContext:IBaseRepository<Order>
         }
     }
     public bool Delete(int id)
-    {   using var tran = _context.Database.BeginTransaction();
+    {   using var tran = _dbContext.Database.BeginTransaction();
         try {
 
             var order = GetById(id);
             if (order == null) return false;
             foreach (var detail in order.Details)
             {
-                var product = _context.Products.Find(detail.ProductId);
+                var product = _dbContext.Products.Find(detail.ProductId);
                 product.StockQuantity += detail.Quantity;
             }
-            _context.Orders.Remove(order);
-            _context.SaveChanges();
+            _dbContext.Orders.Remove(order);
+            _dbContext.SaveChanges();
             tran.Commit();
             return true;
         }
@@ -319,9 +279,9 @@ public class OrderRepositoryDbContext:IBaseRepository<Order>
         }
     }
     public IReadOnlyList<Order> GetAll()
-    => _context.Orders.ToList();
+    => _dbContext.Orders.ToList();
     public Order? GetById(int id)
-    => _context.Orders.Find(id);
+    => _dbContext.Orders.Find(id);
 
 
     public bool Update(Order entity)
