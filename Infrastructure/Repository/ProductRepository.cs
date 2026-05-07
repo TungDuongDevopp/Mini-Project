@@ -121,12 +121,12 @@ public class ProductRepositoryDb : IProductRepository
     }
 }
 
-public class ProductRepositoryDbConext : IProductRepository
+public class ProductRepositoryDbContext : IProductRepository
 
 {
     private readonly ShopDbContext _dbContext;
     private readonly string _conn;
-    public ProductRepositoryDbConext(IConfiguration config)
+    public ProductRepositoryDbContext(IConfiguration config)
     {
         _conn = config.GetConnectionString("DefaultConnection")?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         _dbContext = new ShopDbContext(_conn);

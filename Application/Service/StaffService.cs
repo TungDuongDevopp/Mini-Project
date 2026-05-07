@@ -1,8 +1,8 @@
 ﻿
+using Application.Interface;
 using Domain.Entity;
 
-namespace Application.Interface;
-
+namespace Application.Service;
 public class StaffService : IBaseRepository<Staff>
 
 {
