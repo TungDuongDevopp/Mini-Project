@@ -1,7 +1,5 @@
-﻿using Application.Interface;
+﻿using Application.Service;
 using Domain.Entity;
-using Infrastructure.Data;
-using Infrastructure.Repository;
 using UI.Helper;
 
 namespace UI.Handler;
@@ -15,9 +13,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     }
 
     public Product Input()
-    {
-       
-        
+    { 
         string name = InputHelper.Input("Enter Product Name:", InputHelper.Parsers.String);
         string description = InputHelper.Input("Enter Product Description:", InputHelper.Parsers.String);
         decimal price = InputHelper.Input("Enter Product Price:", InputHelper.Parsers.Decimal, Validator.IsValidMoney);
@@ -33,7 +29,6 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     }
 
     public void Output(Product entity)
-        
     {  
         Console.WriteLine($"{entity.ProductId,-3} | {entity.Name,-35} | {entity.Price.ToString("N0"),-10} | {entity.Description,-40} | {entity.StockQuantity,-5}");
     }
@@ -49,8 +44,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
     }
     public void Run()
     {
-
-        while (true)
+       while (true)
         {
             Console.WriteLine(@"
 --- PRODUCT ---
@@ -78,7 +72,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
 
                 case 3:
                     Console.Write("Nhập ID cần update: ");
-                    int updateId = int.Parse(Console.ReadLine());
+                    int updateId = int.Parse(Console.ReadLine() ?? "0");
                     var existing = _productService.GetById(updateId);
                     if(existing != null)
                     {
@@ -96,7 +90,7 @@ internal class ProductConsoleHander: IConsoleHandler<Product>
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
-                    int deleteId = int.Parse(Console.ReadLine());
+                    int deleteId = int.Parse(Console.ReadLine() ?? "0");
                     if(_productService.GetById(deleteId) == null)
                     {
                         Console.WriteLine("Không tìm thấy sản phẩm với ID đã nhập.");

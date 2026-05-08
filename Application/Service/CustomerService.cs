@@ -1,5 +1,6 @@
 ﻿using Application.Interface;
 using Domain.Entity;
+using System.Numerics;
 namespace Application.Service;
 
 public class CustomerService : IBaseRepository<Customer>
@@ -15,7 +16,7 @@ public class CustomerService : IBaseRepository<Customer>
     public void Create(Customer customer)
     {
         customer.Email = NormalizeEmail(customer.Email);
-        customer.PhoneNumber = NormalizePhone(customer.PhoneNumber);
+        customer.PhoneNumber = customer.PhoneNumber != null ? NormalizePhone(customer.PhoneNumber) : string.Empty; ;
 
         if (!IsEmailUnique(customer.Email))
             throw new Exception("Email đã tồn tại");
@@ -32,7 +33,7 @@ public class CustomerService : IBaseRepository<Customer>
         if (existing == null) return false;
 
         var email = NormalizeEmail(customer.Email);
-        var phone = NormalizePhone(customer.PhoneNumber);
+        var phone =  customer.PhoneNumber!=null ? NormalizePhone(customer.PhoneNumber):string.Empty;
 
         if (!IsEmailUnique(email, customer.CustomerId))
             throw new Exception("Email đã tồn tại");

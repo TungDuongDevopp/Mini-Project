@@ -1,9 +1,9 @@
-﻿using Domain.Entity;
+﻿using Application.Service;
+using Domain.Entity;
 using UI.Helper;
 using static InputHelper;
 
 namespace UI.Handler;
-
 internal class CustomerConsoleHander: IConsoleHandler<Customer>
 {
     private readonly CustomerService _customerService;
@@ -44,10 +44,8 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
         }
     }
 
-    public void Run()
-       
+    public void Run()       
     {
-
         while (true)
         {
             Console.WriteLine(@"
@@ -76,7 +74,7 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
 
                 case 3:
                     Console.Write("Nhập ID cần update: ");
-                    int updateId = int.Parse(Console.ReadLine());
+                    int updateId = int.Parse(Console.ReadLine() ?? "0");
 
                     var existing = _customerService.GetById(updateId);
 
@@ -98,7 +96,7 @@ internal class CustomerConsoleHander: IConsoleHandler<Customer>
                     break;
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
-                    int deleteId = int.Parse(Console.ReadLine());
+                    int deleteId = int.Parse(Console.ReadLine() ?? "0");
                     if (_customerService.GetById(deleteId) == null)
                     {
                         Console.WriteLine("Không tìm thấy khách hàng với ID này.");

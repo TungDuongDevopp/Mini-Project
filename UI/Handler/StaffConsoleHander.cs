@@ -1,11 +1,8 @@
-﻿using Application.Interface;
+﻿using Application.Service;
 using Domain.Entity;
-using Infrastructure.Data;
-using Infrastructure.Repository;
 using UI.Helper;
 
 namespace UI.Handler;
-
 internal class StaffConsoleHander : IConsoleHandler<Staff>
 {
     private readonly StaffService _staffService;
@@ -16,8 +13,6 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
     public Staff Input()
     {
-       
-      
         string name = InputHelper.Input("Enter Staff Name:", InputHelper.Parsers.String);
         string position = InputHelper.Input("Enter Position:", InputHelper.Parsers.String);
         decimal salary = InputHelper.Input("Enter Salary:", InputHelper.Parsers.Decimal,Validator.IsValidMoney);
@@ -79,7 +74,7 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
                 case 3:
                     Console.Write("Nhập ID cần update: ");
-                    int updateId = int.Parse(Console.ReadLine());
+                    int updateId = int.Parse(Console.ReadLine() ?? "0");
 
                    var existing = _staffService.GetById(updateId);
                     if (existing == null)
@@ -100,7 +95,7 @@ internal class StaffConsoleHander : IConsoleHandler<Staff>
 
                 case 4:
                     Console.Write("Nhập ID cần xóa: ");
-                    int deleteId = int.Parse(Console.ReadLine());
+                    int deleteId = int.Parse(Console.ReadLine() ?? "0");
                     if (_staffService.GetById(deleteId) == null)
                     {
                         Console.WriteLine("Không tìm thấy nhân viên!");

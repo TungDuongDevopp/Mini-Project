@@ -238,6 +238,8 @@ public class OrderRepositoryDbContext:IBaseRepository<Order>
             foreach (var detail in order.Details)
             {
                 var product = _dbContext.Products.Find(detail.ProductId);
+                if(product == null)
+                    throw new Exception($"Product with ID {detail.ProductId} not found");
 
                 if (product.StockQuantity < detail.Quantity)
                     throw new Exception("Not enough stock");
@@ -265,6 +267,8 @@ public class OrderRepositoryDbContext:IBaseRepository<Order>
             foreach (var detail in order.Details)
             {
                 var product = _dbContext.Products.Find(detail.ProductId);
+                if(product == null)
+                    throw new Exception($"Product with ID {detail.ProductId} not found");
                 product.StockQuantity += detail.Quantity;
             }
             _dbContext.Orders.Remove(order);
